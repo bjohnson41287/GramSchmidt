@@ -1,0 +1,33 @@
+################################################################################
+# File: MakeDescend.std
+#
+# Author: Benjamin Johnson
+#
+# Version: 1.0
+#
+# Date Created: Sunday March 23, 2014
+# Date Revised: N/A
+#
+# Description: Recursively call make in all directories from the current
+#              directory. This allows make to descend the directory structure
+#              and continue execution if a Makefile is found. 
+################################################################################
+
+# Grab all of the directory and file listings in the current directory
+SUBDIRS := $(shell $(LS)  -1)
+
+ifneq ($(SUBDIRS),)
+$(TARGETS): force
+	@for dir in $(SUBDIRS); do \
+		if [ -d $$dir ]; then \
+			if [ -f $$dir/Makefile ]; then \
+				$(MAKE) -C $$dir $@; \
+			fi \
+		fi \
+	done	
+endif
+
+.PHONY: force
+force: ;
+
+# End MakeDescend.std

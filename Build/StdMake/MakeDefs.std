@@ -1,0 +1,32 @@
+################################################################################
+# File: MakeDefs.std
+#
+# Author: Benjamin Johnson
+#
+# Version: 1.0
+#
+# Date Created: Sunday March 23, 2014
+# Date Revised: N/A
+#
+# Description: Standard definitions for use with Makefiles
+################################################################################
+
+# Define the shell
+SHELL := /bin/bash
+
+# Common shell commands
+MKDIR := mkdir -p
+RM := rm -rf
+LS := ls
+
+# Target definitions
+TARGETS := all
+TARGETS += configure
+
+
+
+
+
+
+
+# End MakeDefs.std
