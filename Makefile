@@ -19,4 +19,4 @@ include ${PROG_ROOT_PATH}/Build/StdMake/MakeDefs.std
 # Recursively descend the directory structure
 include ${PROG_ROOT_PATH}/Build/StdMake/MakeDescend.std
 
-# End Makefile
+# End Makefile -> More comments
