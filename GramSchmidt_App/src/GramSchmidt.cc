@@ -54,5 +54,4 @@
 int main(int argc, char* argv[])
 {
     printf("This is the GramSchmidt program.\n");
-    printf("Here is another line to give a change in the program.\n");
 }
