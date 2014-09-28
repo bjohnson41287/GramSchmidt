@@ -1,0 +1,15 @@
+Brief commit summary less than 72 characters
+<The second line must be blank and this text needs to be deleted!>
+More detailed aspects of the file changes can be made here. However, every line
+beyond the blank second line can only have a maximum of 80 characters.
+
+Each file staged for the commit must be mentioned below with at least one line
+of comments on the changes made. The user is free to use partial paths, if
+desired, but each of the file names must be unique to avoid conflicts when
+comparing with the staged file names. The line before each "File: filename"
+header must be blank and the next line must have as many "-" characters as the
+number of characters on the file header line.
+
+File: <filename>
+(-)
+<Specific file changes mentioned here.>
