@@ -1,11 +1,11 @@
 ################################################################################
-# File: MakeDescend.std
+# File: Makefile.std
 #
 # Author: Benjamin Johnson
 #
 # Version: 1.0
 #
-# Date Created: Sunday March 23, 2014
+# Date Created:  Sunday September 28, 2014
 # Date Revised: N/A
 #
 # Description: Recursively call make in all directories from the current
@@ -14,7 +14,7 @@
 ################################################################################
 
 # Grab all of the directory and file listings in the current directory
-SUBDIRS := $(shell $(LS)  -1)
+SUBDIRS := $(shell $(LS) -1)
 
 ifneq ($(SUBDIRS),)
 $(TARGETS): force
@@ -30,4 +30,4 @@ endif
 .PHONY: force
 force: ;
 
-# End MakeDescend.std
+# End Makefile.std

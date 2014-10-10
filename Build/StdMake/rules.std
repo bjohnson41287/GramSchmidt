@@ -1,0 +1,40 @@
+################################################################################
+# File: rules.std
+#
+# Author: Benjamin Johnson
+#
+# Version: 1.0
+#
+# Date Created: Tuesday September 30, 2014
+# Date Revised: N/A
+#
+# Description: Standard rules for use with Makefiles
+################################################################################
+
+#
+# Compiling object files
+#
+$(LOCAL_OBJ_DIR)/%.o: %.cc
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
+
+#
+# Creating dependency files
+#
+$(LOCAL_OBJ_DIR)/%.d: %.cc
+	@if [ ! -d $(LOCAL_OBJ_DIR) ]; then \
+		$(MKDIR) $(LOCAL_OBJ_DIR); \
+	fi
+	$(CXX) $(DEPEND_FLAGS) -MT "$(patsubst %.d,%.o,$@) $@" -o $@ $<
+
+#
+# Include the dependency files
+#
+DEPS := $(OBJS:.o=.d)
+
+ifneq ($(DEPS),)
+ifeq ($(MAKECMDGOALS),all)
+-include $(DEPS)
+endif
+endif
+
+# End rules.std

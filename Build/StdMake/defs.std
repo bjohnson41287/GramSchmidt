@@ -1,0 +1,61 @@
+################################################################################
+# File: defs.std
+#
+# Author: Benjamin Johnson
+#
+# Version: 1.0
+#
+# Date Created: Sunday September 28, 2014
+# Date Revised: N/A
+#
+# Description: Standard definitions for use with Makefiles
+################################################################################
+
+#
+# Define the shell
+#
+SHELL := /bin/bash
+
+#
+# Common shell commands
+#
+MKDIR := mkdir -p
+RM := rm -rf
+LS := ls
+LN := ln -sf
+
+#
+# Target definitions
+#
+TARGETS := all
+TARGETS += configure
+TARGETS += clobber
+TARGETS += clean
+TARGETS += distclean
+
+#
+# Compiler defintions
+#
+# See the g++ manual pages for descriptions of each compile and dependency
+# flag
+#
+CXX := g++
+CXXFLAGS := -g -Wall
+DEPEND_FLAGS := -MM -MP
+
+#
+# Variable definitions
+#
+PROJ_ROOT_PATH := ${PROJ_ROOT_PATH}
+STD_MAKE_PATH  := ${STD_MAKE_PATH}
+
+DEST_EXEC_PATH   := $(PROJ_ROOT_PATH)/exec
+DEST_HEADER_PATH := $(PROJ_ROOT_PATH)/header
+
+#
+# Parameterized functions for grabbing the local header file names
+#
+headerFiles = $(strip $(notdir $(wildcard $(1)/*.h) $(wildcard $(1)/*.hh)))
+objNames = $(strip $(patsubst %,%.o,$(basename $(notdir $(1)))))
+
+# End defs.std
