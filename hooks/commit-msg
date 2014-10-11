@@ -7,7 +7,7 @@
 # Version: 1.0
 #
 # Date Created: Saturday September 27, 2014
-# Date Revised: N/A
+# Date Revised: Saturday October 11, 2014
 #
 # Description: This shell script checks the commit messages a developer makes
 #              whenever they commit their project to git. This ensures a
@@ -24,7 +24,7 @@ cmtTempFile="cmtMsg.tmp"
 line1MaxChars=72
 maxLineChars=80
 
-fileHdrRegexp="File:[[:space:]]*([[:alnum:]_-/]+\.*[[:alnum:]_-]*)"
+fileHdrRegexp="File:[[:space:]]*\.?([[:alnum:]_-/]+\.*[[:alnum:]_-]*)"
 fileHdrLineRegexp="^[[:space:]]*${fileHdrRegexp}[[:space:]]*$"
 
 msgError=false
