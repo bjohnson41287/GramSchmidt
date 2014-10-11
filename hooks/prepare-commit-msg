@@ -1,0 +1,189 @@
+#!/bin/bash
+################################################################################
+# File: prepare-commit-msg
+#
+# Author: Benjamin Johnson
+#
+# Version: 1.0
+#
+# Date Created: Thursday May 29, 2014
+# Date Revised: N/A
+#
+# Description: Before the editor is displayed to the user, this script sets up a
+#              commit message using a template file that is either passed in as
+#              an argument to "git commit -t <file>" or is located in the
+#              "template" directory off of the project root path. This populates
+#              each commit message with the name of each staged file in the
+#              proper format the commit-msg hook expects. The user is then free
+#              to add comments as needed.
+################################################################################
+
+#
+# Load all of the staged files into an array and store the commit message file
+# name
+#
+cmtFiles=(`git diff --cached --name-only`)
+cmtFiles=(`printf "%s\n" "${cmtFiles[@]}" | sort`)
+cmtMsgFile="$1"
+
+#
+# Store the absolute path of the project root directory and the commit message
+# template file
+#
+PROJ_ROOT_PATH=`git rev-parse --show-toplevel`
+templateFile="${PROJ_ROOT_PATH}/template/commitMsg.template"
+
+#
+# Define needed variables
+#
+fileHdrRegExp="^File: <filename>$"
+fileHdrLineNums=3
+
+#
+# When a template file is used to populate the commit message, store all lines
+# from the "File: <filename>" line to the end of the file in arrays
+#
+templateCmtMsgLines ()
+{
+    #
+    # Store the lines that contain the file header template from the commit
+    # message in an array
+    #
+    fileHdrLine=`grep -n "${fileHdrRegExp}" "${cmtMsgFile}" | \
+                 sed -r 's|^([0-9]+).*$|\1|'`
+    beforeFileHdrLine=$((${fileHdrLine}-1))
+    readarray -n ${fileHdrLineNums} -s ${beforeFileHdrLine} \
+              -t tmpFileHdr < "${cmtMsgFile}"
+
+    #
+    # Store every line after the file header template lines to the end of the
+    # commit message file
+    #
+    readarray -s $((${beforeFileHdrLine}+${fileHdrLineNums})) \
+              -t endMsg < "${cmtMsgFile}"
+}
+
+#
+# When nothing is used to populate the commit message, store all of the lines in
+# the template file before the file header line in an array and put all of the
+# lines from the "File: <filename>" line to the end of the template file in a
+# separate array
+#
+cmtMsgLines ()
+{
+    #
+    # Store the lines before the file header template into an array
+    #
+    fileHdrLine=`grep -n "${fileHdrRegExp}" "${templateFile}" | \
+                 sed -r 's|^([0-9]+).*$|\1|'`
+    beforeFileHdrLine=$((${fileHdrLine}-1))
+    readarray -n $((${beforeFileHdrLine}-1)) -t beginMsg < "${templateFile}"
+
+    #
+    # Store the lines that contain the file header template from the template
+    # file in an array
+    #
+    readarray -s ${beforeFileHdrLine} -t tmpFileHdr < "${templateFile}"
+}
+
+#
+# Loop through each staged file, forming the file header and appending it to the
+# commit message file
+#
+printFileHdrs ()
+{
+    for file in "${cmtFiles[@]}"; do
+        fileHdr[0]=`echo "${tmpFileHdr[0]}" | sed "s|<filename>|${file}|"`
+        fileHdr[1]=$(yes `echo "${tmpFileHdr[1]}" | \
+                     sed -r "s|\("${tmpFileHdr[1]}"\)|\1|"` \
+                     | head -n ${#fileHdr[0]} | xargs printf "%s")
+        fileHdr[2]="${tmpFileHdr[2]}"
+        echo -en "\n"
+        printf "%s\n" "${fileHdr[@]}"
+    done
+} >> "${cmtMsgFile}"
+
+#
+# This hook can take 1-3 parameters. The first is the name of the file that
+# contains the commit message. The second is the source of the commit message
+# and can be one of the following:
+#   message  (if the -m of -F option was given)
+#   template (if the -t option was given or the configuration option
+#             commit.template is set)
+#   merge    (if the commit is a merge or a .git/MERGE_MSG file exists)
+#   squash   (if a .git/SQUASH_MSG file exists)
+#
+# The third argument is the commit SHA-1 hash if a -c, -C, or --amend option is
+# given.
+#
+# A case statement is used to handle each of these cases.
+#
+case "$2" in
+    message)
+        #
+        # Throw an error since a one line commit message will not be able to
+        # contain enough information to specify the changes made to each staged
+        # file in the required format
+        #
+        echo "ERROR: The -m and -F options to the \"git commit\" command are"
+        echo "       not allowed due to the enforced format requirements. A one"
+        echo "       line message will not contain enough information to"
+        echo "       specify the changes made to each staged file in the"
+        echo "       required format and a commit message in a file can cause"
+        echo "       formatting problems that can potentially cause confusion"
+        echo "       if this message file is automatically generated from a"
+        echo "       third party script that does not adhere to the enforced"
+        echo "       format requirements."
+        exit 1
+        ;;
+    template)
+        #
+        # Store each file header line and every other line to the end of the
+        # commit message in arrays and delete these lines from the commit
+        # message file
+        #
+        templateCmtMsgLines
+        sed -i "${beforeFileHdrLine},$ d" "${cmtMsgFile}"
+
+        #
+        # Append the default commit message lines to the commit message file
+        #
+        printf "%s\n" "${endMsg[@]}" >> "${cmtMsgFile}"
+        ;;
+    merge)
+        #
+        # Nothing for now. Code may be added here later to do something
+        # specific
+        #
+        ;;
+    squash)
+        #
+        # Nothing for now. Code may be added here later to do something
+        # specific
+        #
+        ;;
+    *)
+        #
+        # Store every line in the default commit message in an array and delete
+        # them from the file
+        #
+        readarray -t endMsg < "${cmtMsgFile}"
+        sed -i "1,$ d" "${cmtMsgFile}"
+
+        #
+        # Store all lines from the template file and print the ones up to the
+        # file header line to the commit message file
+        #
+        cmtMsgLines
+        printf "%s\n" "${beginMsg[@]}" > "${cmtMsgFile}"
+
+        #
+        # Print default file headers for each file being committed and append
+        # the default commit message lines to the end of the commit message file
+        #
+        printFileHdrs
+        printf "%s\n" "${endMsg[@]}" >> "${cmtMsgFile}"
+        ;;
+esac
+
+# End prepare-commit-msg

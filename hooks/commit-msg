@@ -1,0 +1,416 @@
+#!/bin/bash
+################################################################################
+# File: commit-msg
+#
+# Author: Benjamin Johnson
+#
+# Version: 1.0
+#
+# Date Created: Saturday September 27, 2014
+# Date Revised: N/A
+#
+# Description: This shell script checks the commit messages a developer makes
+#              whenever they commit their project to git. This ensures a
+#              specified format exists and fails with an error message whenever
+#              a violation of the format is found in the commit message. This
+#              will ensure that the commit does not complete until the commit
+#              message adheres to the format.
+################################################################################
+
+#
+# Define needed variables
+#
+cmtTempFile="cmtMsg.tmp"
+line1MaxChars=72
+maxLineChars=80
+
+fileHdrRegexp="File:[[:space:]]*([[:alnum:]_-/]+\.*[[:alnum:]_-]*)"
+fileHdrLineRegexp="^[[:space:]]*${fileHdrRegexp}[[:space:]]*$"
+
+msgError=false
+
+#
+# cmtMsg_fmt displays the commit message format
+#
+cmtMsg_fmt ()
+{
+    echo "The commit message must obey the following formatting rules:"
+    echo ""
+    echo "1. Every line with a \""'#'"\" character as the very first character"
+    echo "   (which includes whitespace) is considered a comment and is not a"
+    echo "   part of the commit message."
+    echo ""
+    echo "2. The first line of the commit message can be up to 72 characters"
+    echo "   and must contain alphanumeric characters."
+    echo ""
+    echo "3. The second line of the commit message must be blank with no"
+    echo "   whitespace."
+    echo ""
+    echo "4. Every other line of the commit message can be up to 80 characters."
+    echo ""
+    echo "5. Every file being committed must be commented on in the commit"
+    echo "   message with a \"File: filename\" heading line. This line must not"
+    echo "   have any leading or trailing whitespace and must be preceeded by"
+    echo "   at least one blank line. The following line must only contain"
+    echo "   \"-\" characters and have the same number of \"-\" characters as"
+    echo "   the number of characters on the file heading line. The line"
+    echo "   followed by the \"-\" characters must not be blank and must"
+    echo "   contain at least one alphanumeric character, indicating there is a"
+    echo "   description about the changes made in the file being committed."
+    echo ""
+    echo "   For example, the following file heading lines are correct:"
+    echo "      (This line should be blank with no whitespace)"
+    echo "      File: someFile.cc"
+    echo "      -----------------"
+    echo "      - Comments about changes made to someFile.cc"
+    echo "      - More comments about changes, if needed"
+    echo ""
+    echo "      File: anotherFile.cc"
+    echo "      --------------------"
+    echo "      The user can format the comments about each file however they"
+    echo "      desire."
+}
+
+#
+# Check all of the formatting for a file header line
+#
+fileHdrCheck ()
+{
+    local ind=$1
+    local prevInd=$(($ind-1))
+    local nextInd=$(($ind+1))
+    local firstTxtInd=$((${nextInd}+1))
+
+    #
+    # Store the file name in the commit message
+    #
+    fileName=`echo "${msgLines[$ind]}" | \
+              sed -r "s|${fileHdrLineRegexp}|\1|"`
+    cmtMsgFiles[${#cmtMsgFiles[@]}]="${fileName}"
+
+    #
+    # Ensure the previous line is blank, the current line has no leading or
+    # trailing whitespace, the next line is all "-" characters with the same
+    # number of "-" characters as the number of characters on the current line,
+    # and the line after the "-" characters has alphanumeric text, indicating
+    # there is a description about the changes made in the file on the current
+    # line. 
+    #
+    if [ ${#msgLines[$prevInd]} -ne 0 ]; then
+        cmtMsg_err ${msgLineNums[$ind]} \
+                   "The line before a \"File: filename\" line must be blank.\n"
+    fi
+
+    if [[ ! "${msgLines[$ind]}" =~ ^${fileHdrRegexp}$ ]]; then
+        cmtMsg_err ${msgLineNums[$ind]} \
+                   "A \"File: filename\" line must not have leading or " \
+                   "trailing whitespace.\n"
+    fi
+
+    if [ ! -z "${msgLines[$nextInd]}" ]; then
+        dashes=`echo "${msgLines[$nextInd]}" | grep -Eo '(-+)' | tr -d "\n"`
+
+        if [ "${msgLines[$nextInd]}" != "${dashes}" ]; then
+            cmtMsg_err ${msgLineNums[$ind]} \
+                   "The line following a \"File: filename\" line must only " \
+                   "contain \"-\" characters.\n"
+        fi
+
+        if [ ${#dashes} -ne ${#msgLines[$ind]} ]; then
+            cmtMsg_err ${msgLineNums[$ind]} \
+                   "The line following a \"File: filename\" line must " \
+                   "contain as many \"-\" characters as the number of " \
+                   "characters on the \"File: filename\" line.\n"
+        fi
+    else
+        cmtMsg_err ${msgLineNums[$ind]} \
+                   "There must be a line of \"-\" characters following a " \
+                   "\"File: filename\" line with the same number of \"-\" " \
+                   "characters as the \"File: filename\" line.\n" 
+    fi
+
+    if [ ! -z "${msgLines[$firstTxtInd]}" ]; then
+        if [[ "${msgLines[$firstTxtInd]}" =~ ^[^[:alpha:]]*$ ]]; then
+            cmtMsg_err ${msgLineNums[$ind]} \
+                   "The line after the line of \"-\" characters must have " \
+                   "alphanumeric characters, since this must be the start " \
+                   "of the file change descriptions.\n"
+        fi
+    else
+        cmtMsg_err ${msgLineNums[$ind]} \
+                   "There must be at least one line of file change comments " \
+                   "after a \"File: filename\" line.\n" 
+    fi
+}
+
+#
+# Check commit messge files and staged files being committed
+#
+checkFileNames ()
+{
+    #
+    # Sort the commit message files and report any duplicates
+    #
+    repeatFiles=(`printf "%s\n" "${cmtMsgFiles[@]}" | sort | uniq -d`)
+    cmtMsgFiles=(`printf "%s\n" "${cmtMsgFiles[@]}" | sort -u`)
+
+    if [ ${#repeatFiles[@]} -ne 0 ]; then
+        echo -en "\nFiles mentioned more than once:\n"
+        printf "    %s\n" "${repeatFiles[@]}"
+        msgError=true
+    fi
+
+    #
+    # Check for files mentioned in the commit message that are not files staged
+    # for the commit
+    #
+    for fileInMsg in ${cmtMsgFiles[@]}; do
+        cmtFileCheck "${fileInMsg}"
+    done
+
+    if [ ${#notCmtFiles[@]} -ne 0 ]; then
+        echo -en "\nFiles not staged for the commit:\n" 
+        printf "    %s\n" "${notCmtFiles[@]}"
+        msgError=true
+    fi
+
+    #
+    # Remove files from cmtFiles that were matched with commite message files
+    # and check for any staged files that were not mentioned in the commit
+    # message
+    #
+    matchInd=(`printf "%d\n" "${matchInd[@]}" | sort -u`)
+    for ((i=0; i<${#matchInd[@]}; i++)); do
+        cmtFileInd=$((${matchInd[$i]}-$i))
+        unset cmtFiles[${cmtFileInd}]
+        cmtFiles=(${cmtFiles[@]:0:${cmtFileInd}} \
+                  ${cmtFiles[@]:$((${cmtFileInd}+1))})
+    done
+
+    print_msgFilesErr
+}
+
+#
+# Check if a file mentioned on a file header line matches one of the files being
+# committed. Also check if this file matches more than one file being committed.
+#
+cmtFileCheck ()
+{
+    local preMatchInd=()
+    local noOfMatchedFiles=0
+    local charMatch=false
+    local cmtFileRegexp=(?\<\![[:alnum:]_-])$1\$
+
+    for ((j=0; j<${#cmtFiles[@]}; j++)); do
+        if [ "${cmtFiles[$j]}" == "$1" ]; then
+            charMatch=true
+            noOfMatchedFiles=1
+            matchInd[${#matchInd[@]}]=$j
+            break
+        elif [ ! -z `echo "${cmtFiles[$j]}" | grep -P ${cmtFileRegexp}` ]; then
+            noOfMatchedFiles=$((${noOfMatchedFiles}+1))
+            preMatchInd[${#preMatchInd[@]}]=$j
+        fi
+    done
+
+    if [ ${charMatch} = false ] && \
+       [ ${noOfMatchedFiles} -gt 0 ]; then
+        matchInd=("${matchInd[@]}" "${preMatchInd[@]}")
+    fi
+
+    if [ ${noOfMatchedFiles} -eq 0 ]; then
+        notCmtFiles[${#notCmtFiles[@]}]="$1"
+    elif [ ${noOfMatchedFiles} -gt 1 ]; then
+        repMatchFiles[${#repMatchFiles[@]}]=$1
+    fi
+}
+
+#
+# Store commit message format errors to be printed after the entire commit
+# message has been scanned
+#
+cmtMsg_err ()
+{
+    local newNoOfErrors=${#errMsg[@]}
+
+    errLine[${newNoOfErrors}]=$1
+    shift
+
+    while [ $# -gt 0 ]; do
+        errMsg[${newNoOfErrors}]+="$1"
+        shift
+    done
+}
+
+#
+# Print all of the commit message format errors
+#
+print_fmtErr ()
+{
+    if [ ${#errMsg[@]} -eq 0 ]; then
+        return 0
+    fi
+
+    echo "Commit Message Format Errors"
+    echo "----------------------------"
+    echo "Use the -h or --help option to the commit-msg hook to display the"
+    echo "commit message formatting rules."
+    echo ""
+    echo "Commit Message File: ${cmtFile}"
+
+    for ((i=0; i<${#errMsg[@]}; i++)); do
+        if [ $i -eq 0 ] || [ ${errLine[$i]} -ne ${errLine[$(($i-1))]} ]; then
+            echo -en "\nLine: ${errLine[$i]}\n"
+        fi
+
+        echo -en "${errMsg[$i]}"
+    done
+
+    msgError=true
+}
+
+#
+# Print any files staged for the commit that were not mentioned in a file
+# header line in the commit message. Also print any files in the commit message
+# that were matched with more than one staged files.
+#
+print_msgFilesErr ()
+{
+    if [ ${#cmtFiles[@]} -gt 0 ]; then
+        echo -en "\nStaged files not mentioned:\n"
+        printf "    %s\n" "${cmtFiles[@]}"
+        msgError=true
+    fi
+
+    if [ ${#repMatchFiles[@]} -gt 0 ]; then
+        echo -en "\nThe following commit message files match more than one\n"
+        echo "staged file. More of the path must be specified to make these"
+        echo "files match a unique staged file:"
+        printf "    %s\n" "${repMatchFiles[@]}"
+        msgError=true
+    fi
+}
+
+#
+# The only parameter this takes is the path to the file that holds the commit
+# message. It needs to be checked that this file exists and that there is only
+# one input argument.
+#
+if [ $# -ne 1 ]; then
+    echo "ERROR: The only input argument can be the path to the file that holds"
+    echo "       the commit message or the -h or --help option to display the"
+    echo "       expected commit message format."
+    exit 1
+else
+    case "$1" in
+        -h | --help)
+            #
+            # Display the commit message format and exit
+            #
+            cmtMsg_fmt
+            exit 1
+            ;;
+        *)
+            #
+            # Ensure the input file exists
+            #
+            cmtFile="$1"
+            if [ ! -f "${cmtFile}" ]; then
+                echo "ERROR: The file ${cmtFile} does not exist."
+                exit 1
+            fi
+            ;;
+    esac
+fi
+
+#
+# Grab every line in the commit message format file that does not begin with a
+# "#" as the first character and store them in a temporary file. Also, grab the
+# line numbers of each extracted line and ensure the amount of line numbers is
+# equal to the number of lines in the temporary file.
+#
+IFS_OLD=${IFS}
+IFS=$'\n'
+
+msgLineNums=(`grep -nv '^#.*$' "${cmtFile}" | sed -r 's|^([0-9]+).*$|\1|'`)
+sed '\|^#.*$| d' <"${cmtFile}" >"${cmtTempFile}"
+
+IFS=${IFS_OLD}
+
+readarray -t msgLines < "${cmtTempFile}"
+rm -f "${cmtTempFile}"
+cmtLines="${#msgLineNums[@]}"
+
+if [ "${cmtLines}" -ne "${#msgLines[@]}" ]; then
+    echo "ERROR: Amount of line numbers from the commit message file does not"
+    echo "       match the number of extracted commit message lines."
+fi
+
+#
+# Use `git diff --cached --name-only` to store the files being commited into an
+# array so they can be used to verify if each file is being commented on in the
+# commit message
+#
+cmtFiles=(`git diff --cached --name-only`)
+cmtFiles=(`printf "%s\n" "${cmtFiles[@]}" | sort`)
+
+#
+# Loop through each element in the msgLines array to check each line of the
+# commit message against the specified format
+#
+for ((i=0; i<${cmtLines}; i++)); do
+    cmtMsgLine=$(($i+1))
+    line=${msgLineNums[$i]}
+    
+    #
+    # Ensure the first line is no more than 72 characters and contains
+    # alphanumeric characters
+    #
+    if [ "${cmtMsgLine}" -eq 1 ]; then
+        if [[ "${msgLines[$i]}" =~ ^[^[:alnum:]]*$ ]]; then
+            cmtMsg_err ${line} \
+                       "The first line does not have alphanumeric characters.\n"
+        elif [ ${#msgLines[$i]} -gt ${line1MaxChars} ]; then
+            cmtMsg_err ${line} \
+                       "The first line can not exceed ${line1MaxChars} " \
+                       "characters.\n"
+        fi
+    elif [ "${cmtMsgLine}" -eq 2 ] && [ ${#msgLines[$i]} -ne 0 ]; then
+        cmtMsg_err ${line} \
+                   "The second line must be blank with no whitespace " \
+                   "characters.\n"
+    else
+        if [ ${#msgLines[$i]} -gt ${maxLineChars} ]; then
+            cmtMsg_err ${line} \
+                       "Exceeds ${maxLineChars} character limit.\n"
+        fi
+
+        #
+        # Check for a line that has the "File: filename.ext" pattern and run
+        # all of the formatting checks for this line if it is found
+        #
+        if [[ "${msgLines[$i]}" =~ ${fileHdrLineRegexp} ]]; then
+            fileHdrCheck $i
+        fi
+    fi
+done
+
+#
+# Print the formatting error messages, if any. Also print any files that are
+# staged for the commit, but are not mentioned in the commit message.
+#
+print_fmtErr
+
+#
+# Ensure all of the files mentioned in the commit message are unique and print
+# any duplicates found. Also print any files mentioned in the commit message
+# that are not being staged for the commit and print any files that are staged
+# for the commit, but are not mentioned in the commit message.
+#
+checkFileNames
+
+if [ ${msgError} = true ]; then
+    exit 1
+fi
+
+# End commit-msg
