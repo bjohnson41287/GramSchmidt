@@ -24,8 +24,8 @@ cmtTempFile="cmtMsg.tmp"
 line1MaxChars=72
 maxLineChars=80
 
-fileHdrRegexp="File:[[:space:]]*\.?([[:alnum:]_-/]+\.*[[:alnum:]_-]*)"
-fileHdrLineRegexp="^[[:space:]]*${fileHdrRegexp}[[:space:]]*$"
+fileHdrRegExp="File:[[:space:]]*([[:alnum:]_-/.]+[^/.])"
+fileHdrLineRegExp="^[[:space:]]*${fileHdrRegExp}[[:space:]]*$"
 
 msgError=false
 
@@ -85,23 +85,23 @@ fileHdrCheck ()
     # Store the file name in the commit message
     #
     fileName=`echo "${msgLines[$ind]}" | \
-              sed -r "s|${fileHdrLineRegexp}|\1|"`
+              sed -r "s|${fileHdrLineRegExp}|\1|"`
     cmtMsgFiles[${#cmtMsgFiles[@]}]="${fileName}"
 
     #
-    # Ensure the previous line is blank, the current line has no leading or
-    # trailing whitespace, the next line is all "-" characters with the same
-    # number of "-" characters as the number of characters on the current line,
-    # and the line after the "-" characters has alphanumeric text, indicating
-    # there is a description about the changes made in the file on the current
-    # line. 
+    # Ensure the previous line is blank and the current line has no leading or
+    # trailing whitespace, special characters, or end in a / or . character.
+    # Also ensure the next line is all "-" characters with the same number of
+    # "-" characters as the number of characters on the current line and the
+    # line after the "-" characters has alphanumeric text, indicating there is a
+    # description about the changes made in the file on the current line. 
     #
     if [ ${#msgLines[$prevInd]} -ne 0 ]; then
-        cmtMsg_err ${msgLineNums[$ind]} \
+        cmtMsg_err ${msgLineNums[$prevInd]} \
                    "The line before a \"File: filename\" line must be blank.\n"
     fi
 
-    if [[ ! "${msgLines[$ind]}" =~ ^${fileHdrRegexp}$ ]]; then
+    if [[ ! "${msgLines[$ind]}" =~ ^${fileHdrRegExp}$ ]]; then
         cmtMsg_err ${msgLineNums[$ind]} \
                    "A \"File: filename\" line must not have leading or " \
                    "trailing whitespace.\n"
@@ -117,7 +117,7 @@ fileHdrCheck ()
         fi
 
         if [ ${#dashes} -ne ${#msgLines[$ind]} ]; then
-            cmtMsg_err ${msgLineNums[$ind]} \
+            cmtMsg_err ${msgLineNums[$nextInd]} \
                    "The line following a \"File: filename\" line must " \
                    "contain as many \"-\" characters as the number of " \
                    "characters on the \"File: filename\" line.\n"
@@ -130,14 +130,14 @@ fileHdrCheck ()
     fi
 
     if [ ! -z "${msgLines[$firstTxtInd]}" ]; then
-        if [[ "${msgLines[$firstTxtInd]}" =~ ^[^[:alpha:]]*$ ]]; then
-            cmtMsg_err ${msgLineNums[$ind]} \
+        if [[ "${msgLines[$firstTxtInd]}" =~ ^[^[:alnum:]]*$ ]]; then
+            cmtMsg_err ${msgLineNums[$firstTxtInd]} \
                    "The line after the line of \"-\" characters must have " \
                    "alphanumeric characters, since this must be the start " \
                    "of the file change descriptions.\n"
         fi
     else
-        cmtMsg_err ${msgLineNums[$ind]} \
+        cmtMsg_err ${msgLineNums[$firstTxtInd]} \
                    "There must be at least one line of file change comments " \
                    "after a \"File: filename\" line.\n" 
     fi
@@ -251,8 +251,11 @@ print_fmtErr ()
         return 0
     fi
 
-    echo "Commit Message Format Errors"
-    echo "----------------------------"
+    #
+    # Echo the error header and dashes in bold font
+    #
+    echo -e "\n\033[1mCommit Message Format Errors\033[0m"
+    echo -e "\033[1m----------------------------\033[0m"
     echo "Use the -h or --help option to the commit-msg hook to display the"
     echo "commit message formatting rules."
     echo ""
@@ -276,6 +279,12 @@ print_fmtErr ()
 #
 print_msgFilesErr ()
 {
+#    if [ ${#badNameFiles[@]} -gt 0 ]; then
+#        echo -en "\nFiles violating naming conventions:\n"
+#        printf "    %s\n" "${badNameFiles[@]}"
+#        msgError=true
+#    fi
+
     if [ ${#cmtFiles[@]} -gt 0 ]; then
         echo -en "\nStaged files not mentioned:\n"
         printf "    %s\n" "${cmtFiles[@]}"
@@ -324,14 +333,22 @@ else
 fi
 
 #
+# Use `git diff --cached --name-only` to store the files being commited into an
+# array so they can be used to verify if each file is being commented on in the
+# commit message
+#
+IFS_OLD=${IFS}
+IFS=$'\n'
+
+cmtFiles=(`git diff --cached --name-only`)
+cmtFiles=(`printf "%s\n" "${cmtFiles[@]}" | sort`)
+
+#
 # Grab every line in the commit message format file that does not begin with a
 # "#" as the first character and store them in a temporary file. Also, grab the
 # line numbers of each extracted line and ensure the amount of line numbers is
 # equal to the number of lines in the temporary file.
 #
-IFS_OLD=${IFS}
-IFS=$'\n'
-
 msgLineNums=(`grep -nv '^#.*$' "${cmtFile}" | sed -r 's|^([0-9]+).*$|\1|'`)
 sed '\|^#.*$| d' <"${cmtFile}" >"${cmtTempFile}"
 
@@ -345,14 +362,6 @@ if [ "${cmtLines}" -ne "${#msgLines[@]}" ]; then
     echo "ERROR: Amount of line numbers from the commit message file does not"
     echo "       match the number of extracted commit message lines."
 fi
-
-#
-# Use `git diff --cached --name-only` to store the files being commited into an
-# array so they can be used to verify if each file is being commented on in the
-# commit message
-#
-cmtFiles=(`git diff --cached --name-only`)
-cmtFiles=(`printf "%s\n" "${cmtFiles[@]}" | sort`)
 
 #
 # Loop through each element in the msgLines array to check each line of the
@@ -389,15 +398,14 @@ for ((i=0; i<${cmtLines}; i++)); do
         # Check for a line that has the "File: filename.ext" pattern and run
         # all of the formatting checks for this line if it is found
         #
-        if [[ "${msgLines[$i]}" =~ ${fileHdrLineRegexp} ]]; then
+        if [[ "${msgLines[$i]}" =~ ${fileHdrLineRegExp} ]]; then
             fileHdrCheck $i
         fi
     fi
 done
 
 #
-# Print the formatting error messages, if any. Also print any files that are
-# staged for the commit, but are not mentioned in the commit message.
+# Print the formatting error messages, if any
 #
 print_fmtErr
 

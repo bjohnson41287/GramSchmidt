@@ -7,7 +7,7 @@
 # Version: 1.0
 #
 # Date Created: Thursday May 29, 2014
-# Date Revised: N/A
+# Date Revised: Saturday October 11, 2014
 #
 # Description: Before the editor is displayed to the user, this script sets up a
 #              commit message using a template file that is either passed in as
@@ -22,8 +22,14 @@
 # Load all of the staged files into an array and store the commit message file
 # name
 #
+IFS_OLD=${IFS}
+IFS=$'\n'
+
 cmtFiles=(`git diff --cached --name-only`)
 cmtFiles=(`printf "%s\n" "${cmtFiles[@]}" | sort`)
+
+IFS=${IFS_OLD}
+
 cmtMsgFile="$1"
 
 #
@@ -38,6 +44,37 @@ templateFile="${PROJ_ROOT_PATH}/template/commitMsg.template"
 #
 fileHdrRegExp="^File: <filename>$"
 fileHdrLineNums=3
+
+#
+# Ensure none of the files being committed violate naming conventions
+#
+checkCmtFileNames ()
+{
+    stgFileRegExp="^[[:alnum:]_-/.]+[^[:space:]/.]$"
+
+    for stgFile in "${cmtFiles[@]}"; do
+        if [[ ! "${stgFile}" =~ ${stgFileRegExp} ]] ||
+           [ ! -z `echo "${stgFile}" | grep !` ]; then
+            badFileNames[${#badFileNames[@]}]="${stgFile}"
+        fi
+    done
+
+    if [ ${#badFileNames[@]} -gt 0 ]; then
+        echo -en "\n\033[1mFiles Violating Naming Coventions:\033[0m\n"
+        printf "%s\n" "${badFileNames[@]}"
+
+        echo -en "\n\033[1mFile Name Conventions:\033[0m\n"
+        echo "1. File names can contain alphanumeric characters, along with"
+        echo -en "   \033[1m_\033[0m\033[1m-\033[0m\033[1m.\033[0m"
+        echo -en " characters.\n"
+        echo ""
+        echo -en "2. File names can not end in \033[1m/\033[0m or "
+        echo -en "\033[1m.\033[0m characters.\n"
+        echo ""
+        echo "3. File names can not contain other special characters or spaces."
+        exit 1
+    fi
+}
 
 #
 # When a template file is used to populate the commit message, store all lines
@@ -104,6 +141,11 @@ printFileHdrs ()
 } >> "${cmtMsgFile}"
 
 #
+# Check to ensure none of the files being committed violate naming conventions
+#
+checkCmtFileNames
+
+#
 # This hook can take 1-3 parameters. The first is the name of the file that
 # contains the commit message. The second is the source of the commit message
 # and can be one of the following:
@@ -124,6 +166,10 @@ case "$2" in
         # Throw an error since a one line commit message will not be able to
         # contain enough information to specify the changes made to each staged
         # file in the required format
+        #
+        # EVENTUALLY PUT A WARNING HERE INSTEAD OF AN ERROR SO THE USER CAN
+        # BYPASS THE COMMIT MESSAGE CHECK IF CHECKING IN TONS OF FILES OR FOR
+        # SOME OTHER REASON!!!!
         #
         echo "ERROR: The -m and -F options to the \"git commit\" command are"
         echo "       not allowed due to the enforced format requirements. A one"
