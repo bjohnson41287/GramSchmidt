@@ -200,7 +200,6 @@ case "$2" in
 
         case "${oneLineMsgFlag}" in
             y | yes)
-                echo -en "\n\nCommit accepted\n"
                 ;;
             n | no)
                 echo -en "\nAborting commit\n"
@@ -263,4 +262,5 @@ case "$2" in
         ;;
 esac
 
+# More changes!
 # End prepare-commit-msg
