@@ -7,7 +7,7 @@
 # Version: 1.0
 #
 # Date Created: Thursday May 29, 2014
-# Date Revised: Saturday October 11, 2014
+# Date Revised: Sunday October 12, 2014
 #
 # Description: Before the editor is displayed to the user, this script checks
 #              each staged file name to ensure it conforms to standard naming
@@ -167,15 +167,13 @@ checkCmtFileNames
 case "$2" in
     message)
         #
-        # Throw an error since a one line commit message will not be able to
+        # Throw an warning since a one line commit message will not be able to
         # contain enough information to specify the changes made to each staged
-        # file in the required format
+        # file in the required format. Also assign stdin to the keyboard.
         #
-        # EVENTUALLY PUT A WARNING HERE INSTEAD OF AN ERROR SO THE USER CAN
-        # BYPASS THE COMMIT MESSAGE CHECK IF CHECKING IN TONS OF FILES OR FOR
-        # SOME OTHER REASON!!!!
-        #
-        echo "\033[1mWARNING:\033[0m"
+        exec < /dev/tty
+
+        echo -en "\n\033[1mWARNING:\033[0m\n"
         echo "The -m and -F options to the \"git commit\" command are not"
         echo "recommended due to the commit message format requirements and"
         echo "will result in a failed commit."
@@ -184,19 +182,34 @@ case "$2" in
         echo "commit message format check, such as checking in many files into"
         echo "a new repository or making minor changes that do not require"
         echo "detailed expalanations for other users to understand. In these"
-        echo "cases, the commit-msg hook can be bypassed by passing the -n or"
-        echo "--no-verify option to the "git commit" command. If this is the"
-        echo "user's intent, verify by entering \"y\"."
+        echo -en "cases, the \033[4mcommit-msg\033[0m hook can be bypassed by "
+        echo -en "passing the \033[1m-n\033[0m or\n"
+        echo -en "\033[1m--no-verify\033[0m option to the \"git commit\" "
+        echo -en "command.\n"
         echo ""
+        echo -en "git commit \033[1m-n\033[0m -m \"Message...\"\n"
+        echo -en "git commit \033[1m--no-verify\033[0m -m \"Message...\"\n"
+        echo ""
+        echo "If this is the user's intent, enter \"n\" or \"no\" at the prompt"
+        echo "and rerun the commit by running one of the above commands."
+        echo "Verify by entering \"y\" or \"yes\"."
+        echo ""
+        echo -en "\033[1mProceed with a one line commit message (y/n)?\033[0m "
 
-        read -s -n 1 -p "\033[1mProceed with a one line commit message (y/n)?\033[0m " oneLineMsgFlag
+        read oneLineMsgFlag
 
         case "${oneLineMsgFlag}" in
-            n)
+            y | yes)
+                echo -en "\n\nCommit accepted\n"
+                ;;
+            n | no)
                 echo -en "\nAborting commit\n"
                 exit 1
                 ;;
             *)
+                echo -en "\nUnknown input \"${oneLineMsgFlag}\". "
+                echo -en "Aborting commit.\n"
+                exit 1
                 ;;
         esac
         ;;
