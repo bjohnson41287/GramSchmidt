@@ -9,13 +9,17 @@
 # Date Created: Thursday May 29, 2014
 # Date Revised: Saturday October 11, 2014
 #
-# Description: Before the editor is displayed to the user, this script sets up a
-#              commit message using a template file that is either passed in as
-#              an argument to "git commit -t <file>" or is located in the
-#              "template" directory off of the project root path. This populates
-#              each commit message with the name of each staged file in the
-#              proper format the commit-msg hook expects. The user is then free
-#              to add comments as needed.
+# Description: Before the editor is displayed to the user, this script checks
+#              each staged file name to ensure it conforms to standard naming
+#              conventions. It then sets up a commit message using a template
+#              file that is either passed in as an argument to
+#
+#                   git commit -t <file>
+#
+#              or is located in the "template" directory off of the project root
+#              path. This populates each commit message with the name of each
+#              staged file in the proper format the commit-msg hook expects. The
+#              user is then free to add comments as needed.
 ################################################################################
 
 #
