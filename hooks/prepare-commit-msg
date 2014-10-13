@@ -175,16 +175,30 @@ case "$2" in
         # BYPASS THE COMMIT MESSAGE CHECK IF CHECKING IN TONS OF FILES OR FOR
         # SOME OTHER REASON!!!!
         #
-        echo "ERROR: The -m and -F options to the \"git commit\" command are"
-        echo "       not allowed due to the enforced format requirements. A one"
-        echo "       line message will not contain enough information to"
-        echo "       specify the changes made to each staged file in the"
-        echo "       required format and a commit message in a file can cause"
-        echo "       formatting problems that can potentially cause confusion"
-        echo "       if this message file is automatically generated from a"
-        echo "       third party script that does not adhere to the enforced"
-        echo "       format requirements."
-        exit 1
+        echo "\033[1mWARNING:\033[0m"
+        echo "The -m and -F options to the \"git commit\" command are not"
+        echo "recommended due to the commit message format requirements and"
+        echo "will result in a failed commit."
+        echo ""
+        echo "However, there are occasions where it is preferable to bypass the"
+        echo "commit message format check, such as checking in many files into"
+        echo "a new repository or making minor changes that do not require"
+        echo "detailed expalanations for other users to understand. In these"
+        echo "cases, the commit-msg hook can be bypassed by passing the -n or"
+        echo "--no-verify option to the "git commit" command. If this is the"
+        echo "user's intent, verify by entering \"y\"."
+        echo ""
+
+        read -s -n 1 -p "\033[1mProceed with a one line commit message (y/n)?\033[0m " oneLineMsgFlag
+
+        case "${oneLineMsgFlag}" in
+            n)
+                echo -en "\nAborting commit\n"
+                exit 1
+                ;;
+            *)
+                ;;
+        esac
         ;;
     template)
         #
