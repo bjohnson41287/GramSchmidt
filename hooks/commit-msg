@@ -4,10 +4,10 @@
 #
 # Author: Benjamin Johnson
 #
-# Version: 1.0
+# Version: 1.1
 #
 # Date Created: Saturday September 27, 2014
-# Date Revised: Saturday October 11, 2014
+# Date Revised: Monday October 13, 2014
 #
 # Description: This shell script checks the commit messages a developer makes
 #              whenever they commit their project to git. This ensures a
@@ -168,24 +168,20 @@ checkFileNames ()
         cmtFileCheck "${fileInMsg}"
     done
 
-    if [ ${#notCmtFiles[@]} -ne 0 ]; then
-        echo -en "\nFiles not staged for the commit:\n" 
-        printf "    %s\n" "${notCmtFiles[@]}"
-        msgError=true
-    fi
+    #
+    # Remove files from cmtFiles that were matched with commit message files and
+    # check for any staged files that were not mentioned in the commit message
+    #
+    if [ ${#matchInd[@]} -ne 0 ]; then
+        matchInd=(`printf "%d\n" "${matchInd[@]}" | sort -u`)
 
-    #
-    # Remove files from cmtFiles that were matched with commite message files
-    # and check for any staged files that were not mentioned in the commit
-    # message
-    #
-    matchInd=(`printf "%d\n" "${matchInd[@]}" | sort -u`)
-    for ((i=0; i<${#matchInd[@]}; i++)); do
-        cmtFileInd=$((${matchInd[$i]}-$i))
-        unset cmtFiles[${cmtFileInd}]
-        cmtFiles=(${cmtFiles[@]:0:${cmtFileInd}} \
-                  ${cmtFiles[@]:$((${cmtFileInd}+1))})
-    done
+        for ((i=0; i<${#matchInd[@]}; i++)); do
+            cmtFileInd=$((${matchInd[$i]}-$i))
+            unset cmtFiles[${cmtFileInd}]
+            cmtFiles=(${cmtFiles[@]:0:${cmtFileInd}} \
+                      ${cmtFiles[@]:$((${cmtFileInd}+1))})
+        done
+    fi
 
     print_msgFilesErr
 }
@@ -279,11 +275,11 @@ print_fmtErr ()
 #
 print_msgFilesErr ()
 {
-#    if [ ${#badNameFiles[@]} -gt 0 ]; then
-#        echo -en "\nFiles violating naming conventions:\n"
-#        printf "    %s\n" "${badNameFiles[@]}"
-#        msgError=true
-#    fi
+    if [ ${#notCmtFiles[@]} -ne 0 ]; then
+        echo -en "\nFiles not staged for the commit:\n"
+        printf "    %s\n" "${notCmtFiles[@]}"
+        msgError=true
+    fi
 
     if [ ${#cmtFiles[@]} -gt 0 ]; then
         echo -en "\nStaged files not mentioned:\n"

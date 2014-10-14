@@ -4,10 +4,10 @@
 #
 # Author: Benjamin Johnson
 #
-# Version: 1.0
+# Version: 1.1
 #
 # Date Created: Thursday May 29, 2014
-# Date Revised: Sunday October 12, 2014
+# Date Revised: Monday October 13, 2014
 #
 # Description: Before the editor is displayed to the user, this script checks
 #              each staged file name to ensure it conforms to standard naming
@@ -173,7 +173,7 @@ case "$2" in
         #
         exec < /dev/tty
 
-        echo -en "\n\033[1mWARNING:\033[0m\n"
+        echo -en "\n\033[1mWARNING\033[0m\n"
         echo "The -m and -F options to the \"git commit\" command are not"
         echo "recommended due to the commit message format requirements and"
         echo "will result in a failed commit."
@@ -262,5 +262,4 @@ case "$2" in
         ;;
 esac
 
-# More changes!
 # End prepare-commit-msg

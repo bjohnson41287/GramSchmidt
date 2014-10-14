@@ -4,19 +4,17 @@
 #
 # Author: Benjamin Johnson
 #
-# Version: 1
+# Version: 1.0
 #
-# Date Created: Monday September 29, 2013
-# Date Revised: N/A
+# Date Created: Monday September 29, 2014
+# Date Revised: Monday October 13, 2014
 #
 # Description: Bash script used to compile the GramSchmidt program
 ################################################################################
 
 #
-# Variable definitions
+# Variable definitions -> PUT LOG FILE NAMES HERE!!!!
 #
-buildLog=Log/GramSchmidt_Build.log
-buildErrLog=Log/GramSchmidt_BuildErr.log
 
 #
 # Manual pages for usage instructions
@@ -59,6 +57,8 @@ fi
 # Set the necessary environment variables
 #
 if [ "$1" = "setenv" ]; then
+    echo "Setting environment"
+
     #
     # Set PROJ_ROOT_PATH as the project root directory and STD_MAKE_PATH
     # as the directory where the standard files used by "make" reside
@@ -67,9 +67,15 @@ if [ "$1" = "setenv" ]; then
     export STD_MAKE_PATH=Build/StdMake
 
     #
+    # Link the repository git hooks to the .git/hooks directory
+    #
+    echo -en "\n  Linking git hooks to the .git/hooks directory\n"
+    ${PROJ_ROOT_PATH}/Tools/Scripts/LinkGitHooks.sh
+
+    #
     # Let the user know what PROJ_ROOT_PATH is defined as
     #
-    echo -en "\nPROJ_ROOT_PATH: ${PROJ_ROOT_PATH}\n"
+    echo "  PROJ_ROOT_PATH: ${PROJ_ROOT_PATH}"
 
 #
 # Configure the source code for compilation
