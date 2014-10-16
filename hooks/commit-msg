@@ -4,10 +4,8 @@
 #
 # Author: Benjamin Johnson
 #
-# Version: 1.1
-#
 # Date Created: Saturday September 27, 2014
-# Date Revised: Monday October 13, 2014
+# Date Revised: Wednesday October 15, 2014
 #
 # Description: This shell script checks the commit messages a developer makes
 #              whenever they commit their project to git. This ensures a
