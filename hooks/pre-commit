@@ -1,0 +1,75 @@
+#!/bin/bash
+################################################################################
+# File: pre-commit
+#
+# Author: Benjamin Johnson
+#
+# Date Created: Wednesday October 15, 2014
+# Date Revised: N/A
+#
+# Description: This hooks is executed just after a "git commit" command is run
+#              and it inspects the staged file names to ensure they follow
+#              standard naming conventions.
+################################################################################
+
+#
+# Load all of the staged files into an array
+#
+IFS_OLD=${IFS}
+IFS=$'\n'
+
+cmtFiles=(`git diff --cached --name-only`)
+cmtFiles=(`printf "%s\n" "${cmtFiles[@]}" | sort`)
+
+IFS=${IFS_OLD}
+
+#
+# Print the standard file naming conventions
+#
+stdNameConv ()
+{
+    echo -en "\n\033[1mFile Name Conventions:\033[0m\n"
+    echo "1. File names can contain alphanumeric characters, along with"
+    echo -en "   \033[1m_\033[0m\033[1m-\033[0m\033[1m.\033[0m"
+    echo -en " characters.\n"
+    echo ""
+    echo -en "2. File names can not end in \033[1m/\033[0m or "
+    echo -en "\033[1m.\033[0m characters.\n"
+    echo ""
+    echo "3. File names can not contain other special characters or spaces."
+}
+
+#
+# Ensure none of the staged files violate standard naming conventions
+#
+checkFileNames ()
+{
+    stgFileRegExp="^[[:alnum:]_-/.]+[^[:space:]/.]$"
+
+    for stgFile in "${cmtFiles[@]}"; do
+        if [[ ! "${stgFile}" =~ ${stgFileRegExp} ]] ||
+           [ ! -z `echo "${stgFile}" | grep !` ]; then
+            badFileNames[${#badFileNames[@]}]="${stgFile}"
+        fi
+    done
+
+    #
+    # List the staged files that violate the naming conventions and print the
+    # standard naming conventions
+    #
+    if [ ${#badFileNames[@]} -gt 0 ]; then
+        echo -en "\n\033[1mFiles Violating Naming Coventions:\033[0m\n"
+        printf "%s\n" "${badFileNames[@]}"
+
+        stdNameConv
+        exit 1
+    fi
+}
+
+#
+# Perform a check on all staged file names to ensure they do not violate the
+# standard naming conventions
+#
+checkFileNames
+
+# End pre-commit

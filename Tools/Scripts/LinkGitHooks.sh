@@ -4,10 +4,8 @@
 #
 # Author: Benjamin Johnson
 #
-# Version: 1
-#
 # Date Created: Monday, October 13, 2014
-# Date Revised: N/A
+# Date Revised: Wednesday, October 15, 2014
 #
 # Description: Link the repository git hooks to the .git/hooks directory for
 #              continued use.

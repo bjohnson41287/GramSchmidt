@@ -4,15 +4,12 @@
 #
 # Author: Benjamin Johnson
 #
-# Version: 1.1
-#
 # Date Created: Thursday May 29, 2014
-# Date Revised: Monday October 13, 2014
+# Date Revised: Wednesday October 15, 2014
 #
-# Description: Before the editor is displayed to the user, this script checks
-#              each staged file name to ensure it conforms to standard naming
-#              conventions. It then sets up a commit message using a template
-#              file that is either passed in as an argument to
+# Description: Before the editor is displayed to the user, this hook sets up a              each staged file name to ensure it conforms to standard naming
+#              commit message using a template file that is either passed in as
+#              an argument to
 #
 #                   git commit -t <file>
 #
@@ -48,37 +45,6 @@ templateFile="${PROJ_ROOT_PATH}/template/commitMsg.template"
 #
 fileHdrRegExp="^File: <filename>$"
 fileHdrLineNums=3
-
-#
-# Ensure none of the files being committed violate naming conventions
-#
-checkCmtFileNames ()
-{
-    stgFileRegExp="^[[:alnum:]_-/.]+[^[:space:]/.]$"
-
-    for stgFile in "${cmtFiles[@]}"; do
-        if [[ ! "${stgFile}" =~ ${stgFileRegExp} ]] ||
-           [ ! -z `echo "${stgFile}" | grep !` ]; then
-            badFileNames[${#badFileNames[@]}]="${stgFile}"
-        fi
-    done
-
-    if [ ${#badFileNames[@]} -gt 0 ]; then
-        echo -en "\n\033[1mFiles Violating Naming Coventions:\033[0m\n"
-        printf "%s\n" "${badFileNames[@]}"
-
-        echo -en "\n\033[1mFile Name Conventions:\033[0m\n"
-        echo "1. File names can contain alphanumeric characters, along with"
-        echo -en "   \033[1m_\033[0m\033[1m-\033[0m\033[1m.\033[0m"
-        echo -en " characters.\n"
-        echo ""
-        echo -en "2. File names can not end in \033[1m/\033[0m or "
-        echo -en "\033[1m.\033[0m characters.\n"
-        echo ""
-        echo "3. File names can not contain other special characters or spaces."
-        exit 1
-    fi
-}
 
 #
 # When a template file is used to populate the commit message, store all lines
@@ -145,11 +111,6 @@ printFileHdrs ()
 } >> "${cmtMsgFile}"
 
 #
-# Check to ensure none of the files being committed violate naming conventions
-#
-checkCmtFileNames
-
-#
 # This hook can take 1-3 parameters. The first is the name of the file that
 # contains the commit message. The second is the source of the commit message
 # and can be one of the following:
@@ -176,7 +137,7 @@ case "$2" in
         echo -en "\n\033[1mWARNING\033[0m\n"
         echo "The -m and -F options to the \"git commit\" command are not"
         echo "recommended due to the commit message format requirements and"
-        echo "will result in a failed commit."
+        echo "will likely result in a failed commit."
         echo ""
         echo "However, there are occasions where it is preferable to bypass the"
         echo "commit message format check, such as checking in many files into"
