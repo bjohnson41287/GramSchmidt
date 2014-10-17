@@ -1,26 +1,22 @@
+#!/bin/bash
 ################################################################################
-# File: .gitattributes
+# File: GitKeywordExp.sh
 hash
 # Author: Benjamin Johnson
 hash
 # Date Created: Thursday October 16, 2014
 # Date Revised: N/A
 hash
-# Description: The .gitattributes file defines actions taken for particular
-#              files.
+# Description: Performs keyword expansion in the clean filter when files are
+#              being committed.
 ################################################################################
 
 hash
-# Define the keyword expansion filter for all files
+# Determine argument that gets passed from git
 hash
-*   filter=keywordExp
+
+sed 's|^#$|hash|'
 
 
 
-
-
-
-
-
-
-# End .gitattributes
+# End GitKeywordExp.sh
