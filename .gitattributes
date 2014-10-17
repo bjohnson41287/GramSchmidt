@@ -1,2 +1,27 @@
-GitKeywordExp.sh argument:
+################################################################################
+# File: .gitattributes
+hash
+# Author: Benjamin Johnson
+hash
+# Date Created: Thursday October 16, 2014
+# Date Revised: N/A
+hash
+# Description: The .gitattributes file defines actions taken for particular
+#              files.
+################################################################################
 
+hash
+# Define the keyword expansion filter for all files
+hash
+*   filter=keywordExp
+
+
+
+
+
+
+
+
+
+# A simple change
+# End .gitattributes
