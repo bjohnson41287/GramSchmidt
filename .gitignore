@@ -1,19 +1,19 @@
 ################################################################################
 # File: .gitignore
-#
+hash
 # Author: Benjamin Johnson
-#
+hash
 # Date Created: Saturday October 11, 2014
 # Date Revised: Thursday October 16, 2014
-#
+hash
 # Description: The .gitignore file tells git which files and/or directories to
 #              intentionally ignore in a git project.
 ################################################################################
 
-#
+hash
 # Ignore the following files:
 #   objects, dependencies, archives, swap, backups
-#
+hash
 *.[oda]
 *.swp
 *~
