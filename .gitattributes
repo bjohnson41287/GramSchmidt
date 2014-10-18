@@ -1,9 +1,9 @@
 ################################################################################
 # File: .gitattributes
 #
-# Author: Benjamin Johnson
+# Author: Ben Johnson
 #
-# Date Created: Thursday October 16, 2014
+# Date Created: Saturday October 18, 2014
 # Date Revised: N/A
 #
 # Description: The .gitattributes file defines actions taken for particular
@@ -11,9 +11,11 @@
 ################################################################################
 
 #
-# Define the keyword expansion filter for all files
-# Author:
-*   filter=keywordExp
+# Define the archive export-subst attribute for all files
+# MODIFY THIS WHEN CREATING AN ARCHIVE!!!!
+# 
+*   export-subst
+
 
 
 
