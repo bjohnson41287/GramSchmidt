@@ -14,7 +14,6 @@ hash
 hash
 # Determine argument that gets passed from git
 hash
-
 sed 's|^#$|hash|'
 
 
