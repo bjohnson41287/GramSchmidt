@@ -1,17 +1,18 @@
 /**
 ********************************************************************************
 ** @file    GramSchmidt.cc
+**
 ** @brief   Starting point for the Gram-Schmidt algorithm
 **
 ** @details The Gram-Schmidt process generates an orthonormal set of n basis
 **          vectors, given a non-orthogonal set of n vectors that span the
 **          n-dimensional space.
 **
-** @author  Benjamin Johnson
-** @version 1.0
-** @date    Sunday March 23, 2014
+** @author  Ben Johnson
 **
-** @copyright Copyright 2014 by Benjamin Johnson
+** @date    Sunday October 19, 2014
+**
+** @copyright Copyright 2014 by Benjamin Johnson\n
 **            You can freely redistribute and/or modify the contents of this
 **            file under the terms of the GNU General Public License version 3,
 **            or any later versions.
@@ -20,7 +21,7 @@
 
 /*
 ********************************************************************************
-**  (C) Copyright 2014 by Benjamin Johnson
+**  (C) Copyright 2014 by Ben Johnson
 **
 **  GramSchmidt is free software: you can redistribute it and/or modify it under
 **  the terms of the GNU General Public License as published by the Free
