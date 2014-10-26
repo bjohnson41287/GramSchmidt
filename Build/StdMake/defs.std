@@ -6,7 +6,7 @@
 # Version: 1.0
 #
 # Date Created: Sunday September 28, 2014
-# Date Revised: N/A
+# Date Revised: Thursday October 23, 2014
 #
 # Description: Standard definitions for use with Makefiles
 ################################################################################
@@ -40,8 +40,14 @@ TARGETS += distclean
 # flag
 #
 CXX := g++
-CXXFLAGS := -g -Wall
+CXXFLAGS := -g -Wall -std=c++11
 DEPEND_FLAGS := -MM -MP
+
+#
+# Library archive definitions
+#
+AR := ar
+ARFLAGS := -cru
 
 #
 # Variable definitions
@@ -51,6 +57,16 @@ STD_MAKE_PATH  := ${STD_MAKE_PATH}
 
 DEST_EXEC_PATH   := $(PROJ_ROOT_PATH)/exec
 DEST_HEADER_PATH := $(PROJ_ROOT_PATH)/header
+DEST_LIB_PATH    := $(PROJ_ROOT_PATH)/lib
+
+LIB_TGTS_PATH := $(PROJ_ROOT_PATH)/.targets
+LIB_TGTS_FILE := $(LIB_TGTS_PATH)/targets.libs
+
+#
+# Include directories
+#
+INC_HDR_DIRS := $(DEST_HEADER_PATH)
+INC_LIB_DIRS := $(DEST_LIB_PATH)
 
 #
 # Parameterized functions for grabbing the local header file names

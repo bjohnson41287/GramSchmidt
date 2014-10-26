@@ -30,16 +30,19 @@
 **
 **  GramSchmidt is distributed in the hope that it will be useful, but WITHOUT
 **  ANY WARRANTY; without even the implied warranty of MERCHANTIBILITY or
-**  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-**  more details.
+**  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License in the
+**  GPL_V3 file for more details.
 **
-**  You should have received a copy of the GNU General Public License along
-**  with GramSchmidt. If not, see <http://www.gnu.org/licenses/>.
+**  You should have received a copy of the GNU General Public License in the
+**  GPL_V3 file along with GramSchmidt.
+**  If not, see <http://www.gnu.org/licenses/>.
 ********************************************************************************
 */
 
 /*------------------------------[Include Files]-------------------------------*/
 #include <stdio.h>
+
+#include "Vector.hh"
 
 /*-------------------------------[Begin Code]---------------------------------*/
 /**
