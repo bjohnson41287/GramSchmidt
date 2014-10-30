@@ -6,7 +6,7 @@
 # Version: 1.0
 #
 # Date Created: Sunday September 28, 2014
-# Date Revised: Thursday October 23, 2014
+# Date Revised: Wednesday October 29, 2014
 #
 # Description: Standard definitions for use with Makefiles
 ################################################################################
@@ -40,8 +40,12 @@ TARGETS += distclean
 # flag
 #
 CXX := g++
-CXXFLAGS := -g -Wall -std=c++11
+COMPILE_FLAGS := -g -Wall -std=c++11
+OPTIMIZE_FLAGS := -O
+HARDWARE_FLAGS := -msse2 -mfpmath=sse
 DEPEND_FLAGS := -MM -MP
+
+CXXFLAGS := $(COMPILE_FLAGS) $(OPTIMIZE_FLAGS) $(HARDWARE_FLAGS)
 
 #
 # Library archive definitions
