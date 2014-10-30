@@ -4,7 +4,7 @@
 # Author: Benjamin Johnson
 #
 # Date Created: Monday September 29, 2014
-# Date Revised: Saturday October 25, 2014
+# Date Revised: Tuesday October 28, 2014
 #
 # Description: Generic Makefile for application code
 ################################################################################
@@ -51,7 +51,7 @@ clobber:
 clean: clobber
 	@if [ -d $(DEST_EXEC_PATH) ]; then \
 		$(RM) $(DEST_EXEC_PATH)/$(APP_NAME); \
-		if [ -z `$(LS) $(DEST_EXEC_PATH)` ]; then \
+		if [ `$(LS) -1 $(DEST_EXEC_PATH) | wc -w` -eq 0 ]; then \
 			$(RM) $(DEST_EXEC_PATH); \
 		fi \
 	fi
@@ -61,7 +61,7 @@ distclean: clean
 		for file in $(HEADERS); do \
 			$(RM) $(DEST_HEADER_PATH)/$(notdir $$file); \
 		done; \
-		if [ -z `$(LS) $(DEST_HEADER_PATH)` ]; then \
+		if [ `$(LS) -1 $(DEST_HEADER_PATH) | wc -w` -eq 0 ]; then \
 			$(RM) $(DEST_HEADER_PATH); \
 		fi \
 	fi

@@ -1,15 +1,17 @@
 /**
 ********************************************************************************
-** @file    Vector.hh
+** @file    Macros.hh
 **
-** @brief   Declaration of the Vector class
+** @brief   Define common macros
 **
-** @details All members of methods of the Vector class are declared here.
+** @details Many C++ programs use a common set of preprocessor macros as
+**          constants, flags, functions, or for other purposes. This file
+**          defines the macros that are used throughout this program.
 **
 ** @author  Ben Johnson
 **
-**          Date Created: Monday October 20, 2014
-** @date    Tuesday October 28, 2014
+**          Date Created: Monday October 27, 2014
+** @date    Monday October 27, 2014
 **
 ** @copyright Copyright 2014 by Benjamin Johnson\n
 **            You can freely redistribute and/or modify the contents of this
@@ -36,75 +38,22 @@
 ********************************************************************************
 */
 
-#ifndef _VECTOR_HH_
-#define _VECTOR_HH_
-
-/*------------------------------[Include Files]-------------------------------*/
-#include "StdTypes.hh"
-
+#ifndef _MACROS_HH_
+#define _MACROS_HH_
 
 /*-------------------------------[Begin Code]---------------------------------*/
 /**
 ********************************************************************************
-** @class   Vector
+** ADD DOXYGEN COMMENTS HERE, IF NEEDED!!!!
 **
 **
 **
 ********************************************************************************
 */
-class Vector
-{
-    private:
-        unsigned int ndims;   /* Number of dimensions (elements) in the vector */
-
-        double* pVec;         /* Pointer to the vector elements */
-
-    public:
-
-        /*
-        ** Default constructor (disabled)
-        */
-        Vector() = delete;
-
-        /*
-        ** Constructor (one parameter)
-        */
-        Vector(unsigned int n);
-
-        /*
-        ** Default copy constructor (disabled)
-        */
-        Vector(const Vector&) = delete;
-
-        /*
-        ** Default copy assignment (disabled)
-        */
-        Vector& operator=(const Vector&) = delete;
-
-        /*
-        ** Default move constructor
-        **
-        */
-        Vector(Vector&&) = default;
-
-        /*
-        ** Default move assignment
-        */
-        Vector& operator=(Vector&&) = default;
-
-        /*
-        ** Default destructor (disabled)
-        */
-        ~Vector();
-
-
-};
-
-
-
-
-
-
-
+#if defined(__x86_64__) || defined(_M_x64)
+    #define CPU_64_BIT
+#else
+    #define CPU_32_BIT
+#endif
 
 #endif

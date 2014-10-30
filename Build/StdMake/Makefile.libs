@@ -4,7 +4,7 @@
 # Author: Benjamin Johnson
 #
 # Date Created: Saturday October 25, 2014
-# Date Revised: N/A
+# Date Revised: Wednesday October 29, 2014
 #
 # Description: Generic Makefile for library code
 ################################################################################
@@ -28,26 +28,29 @@ OBJS := $(addprefix $(LOCAL_OBJ_DIR)/,$(call objNames,$(CCSOURCE)))
 #
 .PHONY: all configure clobber clean distclean
 
-all: $(DEST_LIB_PATH) $(LIB_NAME_PATH)
+all: local_all
 ifneq ($(OBJS),)
 	@$(LN) $(LIB_NAME_PATH) $(DEST_LIB_PATH)/$(LIB_NAME)
 endif
 
-configure: $(DEST_HEADER_PATH) $(LIB_TGTS_PATH)
+configure: local_configure
 ifneq ($(HEADERS),)
 	@for file in $(HEADERS); do \
 		$(LN) $(LOCAL_HEADER_DIR)/$$file $(DEST_HEADER_PATH)/$$file; \
 	done
 endif
+
+ifneq ($(OBJS),)
 	@if [ ! -f $(LIB_TGTS_FILE) ]; then \
 		echo "#" > $(LIB_TGTS_FILE); \
 		echo "# Library targets" >> $(LIB_TGTS_FILE); \
 		echo "#" >> $(LIB_TGTS_FILE); \
 	fi
 
-ifeq ($(shell grep $(LIB_BASE) $(LIB_TGTS_FILE); echo $$?),1)
-	@printf "%s\n" "$(LIB_BASE):" >> $(LIB_TGTS_FILE)
-	@printf "\t%s\n" "\$$(MAKE) -C $(CURDIR) all" >> $(LIB_TGTS_FILE)
+	@if [ -z "`grep $(LIB_BASE) $(LIB_TGTS_FILE)`" ]; then \
+		printf "%s\n" "$(LIB_BASE):" >> $(LIB_TGTS_FILE); \
+		printf "\t%s\n" "\$$(MAKE) -C $(CURDIR) all" >> $(LIB_TGTS_FILE); \
+	fi
 endif
 
 clobber:
@@ -58,7 +61,28 @@ clobber:
 		$(RM) $(LOCAL_LIB_DIR); \
 	fi
 
+clean: clobber
+	@if [ -d $(LIB_TGTS_PATH) ]; then \
+		$(RM) $(LIB_TGTS_PATH); \
+	fi
 
+distclean: clean
+	@if [ -d $(DEST_HEADER_PATH) ]; then \
+		for file in $(HEADERS); do \
+			$(RM) $(DEST_HEADER_PATH)/$(notdir $$file); \
+		done; \
+		if [ `$(LS) -1 $(DEST_HEADER_PATH) | wc -w` -eq 0 ]; then \
+			$(RM) $(DEST_HEADER_PATH); \
+		fi \
+	fi
+ifneq ($(LIB_NAME),)
+	@if [ -d $(DEST_LIB_PATH) ]; then \
+		$(RM) $(DEST_LIB_PATH)/$(LIB_NAME); \
+		if [ `$(LS) -1 $(DEST_LIB_PATH) | wc -w` -eq 0 ]; then \
+			$(RM) $(DEST_LIB_PATH); \
+		fi; \
+	fi
+endif
 
 
 

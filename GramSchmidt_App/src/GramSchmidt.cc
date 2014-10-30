@@ -42,6 +42,7 @@
 /*------------------------------[Include Files]-------------------------------*/
 #include <stdio.h>
 
+#include "StdTypes.hh"
 #include "Vector.hh"
 
 /*-------------------------------[Begin Code]---------------------------------*/
@@ -58,4 +59,14 @@
 int main(int argc, char* argv[])
 {
     printf("This is the GramSchmidt program.\n");
+#if defined(CPU_64_BIT)
+    printf("64-bit CPU\n");
+#elif defined(CPU_32_BIT)
+    printf("32-bit CPU\n");
+#endif
+    printf("Size of char: %ld\n",sizeof(char));
+    printf("Size of short int: %ld\n",sizeof(short));
+    printf("Size of int: %ld\n",sizeof(int));
+    printf("Size of long: %ld\n",sizeof(long));
+    printf("Size of long long: %ld\n",sizeof(long long));
 }

@@ -11,7 +11,7 @@
 ** @author  Ben Johnson
 **
 **          DateCreated: Monday October 20, 2014
-** @date    Sunday October 19, 2014
+** @date    Tuesday October 28, 2014
 **
 ** @copyright Copyright 2014 by Benjamin Johnson\n
 **            You can freely redistribute and/or modify the contents of this
@@ -72,7 +72,7 @@ Vector::Vector(unsigned int n)
     /*
     ** Initialize all vector elements to zero
     */
-    for (int i = 0; i < ndims; i++)
+    for (UINT32 i = 0; i < ndims; i++)
     {
         pVec[i] = 0.0;
     }

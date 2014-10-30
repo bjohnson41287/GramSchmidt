@@ -1,15 +1,16 @@
 /**
 ********************************************************************************
-** @file    Vector.hh
+** @file    StdTypes.hh
 **
-** @brief   Declaration of the Vector class
+** @brief   Definition of variable types and standard macros
 **
-** @details All members of methods of the Vector class are declared here.
+** @details All C++ variable types are defined using typedef, along with boolean
+**          true and false values and the NULL macro.
 **
 ** @author  Ben Johnson
 **
-**          Date Created: Monday October 20, 2014
-** @date    Tuesday October 28, 2014
+**          Date Created: Sunday October 26, 2014
+** @date    Monday October 27, 2014
 **
 ** @copyright Copyright 2014 by Benjamin Johnson\n
 **            You can freely redistribute and/or modify the contents of this
@@ -36,69 +37,60 @@
 ********************************************************************************
 */
 
-#ifndef _VECTOR_HH_
-#define _VECTOR_HH_
+#ifndef _STD_TYPES_HH_
+#define _STD_TYPES_HH_
 
 /*------------------------------[Include Files]-------------------------------*/
-#include "StdTypes.hh"
+#include <stdio.h>
 
+#include "Macros.hh"
 
 /*-------------------------------[Begin Code]---------------------------------*/
 /**
 ********************************************************************************
-** @class   Vector
+** ADD DOXYGEN COMMENTS HERE!!!! -> Describe the typedef use for each variable!
 **
 **
 **
 ********************************************************************************
 */
-class Vector
-{
-    private:
-        unsigned int ndims;   /* Number of dimensions (elements) in the vector */
 
-        double* pVec;         /* Pointer to the vector elements */
+/*
+** Type define each standard C++ variable type for a 64-bit processor
+*/
+#if defined(CPU_64_BIT)
+    typedef unsigned char      UINT8;
+    typedef unsigned short int UINT16;
+    typedef unsigned int       UINT32;
+    typedef unsigned long int  UINT64;
 
-    public:
+    typedef signed char      INT8;
+    typedef signed short int INT16;
+    typedef signed int       INT32;
+    typedef signed long int  INT64;
+#elif defined(CPU_32_BIT)
+    //printf("I'm a 32-bit computer!\n");
+#endif
 
-        /*
-        ** Default constructor (disabled)
-        */
-        Vector() = delete;
+/*
+** Define the true and false boolean keywords if they are not defined
+*/
+#ifndef true
+#define true 1
+#endif
 
-        /*
-        ** Constructor (one parameter)
-        */
-        Vector(unsigned int n);
+#ifndef false
+#define false 0
+#endif
 
-        /*
-        ** Default copy constructor (disabled)
-        */
-        Vector(const Vector&) = delete;
-
-        /*
-        ** Default copy assignment (disabled)
-        */
-        Vector& operator=(const Vector&) = delete;
-
-        /*
-        ** Default move constructor
-        **
-        */
-        Vector(Vector&&) = default;
-
-        /*
-        ** Default move assignment
-        */
-        Vector& operator=(Vector&&) = default;
-
-        /*
-        ** Default destructor (disabled)
-        */
-        ~Vector();
+/*
+** TALK ABOUT WHY FLOATING POINT VARIABLES ARE NOT TYPE DEFINED!!!! -> DUE TO IEEE STANDARD
+*/
 
 
-};
+
+
+
 
 
 
