@@ -3,10 +3,8 @@
 #
 # Author: Benjamin Johnson
 #
-# Version: 1.0
-#
 # Date Created: Monday September 29, 2014
-# Date Revised: N/A
+# Date Revised: Saturday October 25, 2014
 #
 # Description: Standard targets for use with Makefiles
 ################################################################################
@@ -15,15 +13,14 @@
 # Top level project directories where files may be linked or stored
 #
 PROJ_DEST_PATH := $(DEST_HEADER_PATH)
+PROJ_DEST_PATH += $(DEST_LIB_PATH)
 PROJ_DEST_PATH += $(DEST_EXEC_PATH)
+PROJ_DEST_PATH += $(LIB_TGTS_PATH)
 
 $(PROJ_DEST_PATH):
 	@if [ ! -d $@ ]; then \
 		$(MKDIR) $@; \
 	fi
-
-
-
 
 include $(PROJ_ROOT_PATH)/$(STD_MAKE_PATH)/rules.std
 

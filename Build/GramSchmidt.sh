@@ -4,17 +4,21 @@
 #
 # Author: Benjamin Johnson
 #
-# Version: 1.0
-#
 # Date Created: Monday September 29, 2014
-# Date Revised: Monday October 13, 2014
+# Date Revised: Saturday October 25, 2014
 #
 # Description: Bash script used to compile the GramSchmidt program
 ################################################################################
 
 #
-# Variable definitions -> PUT LOG FILE NAMES HERE!!!!
+# Variable definitions
 #
+configOutLog=configure_stdout.log
+buildOutLog=build_stdout.log
+
+configErrLog=configure_stderr.log
+buildErrLog=build_stderr.log
+
 
 #
 # Manual pages for usage instructions

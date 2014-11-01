@@ -3,10 +3,8 @@
 #
 # Author: Benjamin Johnson
 #
-# Version: 1.0
-#
 # Date Created: Tuesday September 30, 2014
-# Date Revised: N/A
+# Date Revised: Saturday October 25, 2014
 #
 # Description: Standard rules for use with Makefiles
 ################################################################################
@@ -15,7 +13,7 @@
 # Compiling object files
 #
 $(LOCAL_OBJ_DIR)/%.o: %.cc
-	$(CXX) $(CXXFLAGS) -o $@ -c $<
+	$(CXX) $(CXXFLAGS) $(patsubst %,-I%,$(INC_HDR_DIRS)) -o $@ -c $<
 
 #
 # Creating dependency files
@@ -24,7 +22,8 @@ $(LOCAL_OBJ_DIR)/%.d: %.cc
 	@if [ ! -d $(LOCAL_OBJ_DIR) ]; then \
 		$(MKDIR) $(LOCAL_OBJ_DIR); \
 	fi
-	$(CXX) $(DEPEND_FLAGS) -MT "$(patsubst %.d,%.o,$@) $@" -o $@ $<
+	$(CXX) $(DEPEND_FLAGS) -MT "$(patsubst %.d,%.o,$@) $@" \
+    $(patsubst %,-I%,$(INC_HDR_DIRS)) -o $@ $<
 
 #
 # Include the dependency files
