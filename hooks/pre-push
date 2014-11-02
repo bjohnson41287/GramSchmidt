@@ -1,0 +1,54 @@
+#!/bin/bash
+################################################################################
+# File: pre-push
+#
+# Author: Benjamin Johnson
+#
+# Date Created: Saturday November 1, 2014
+# Date Revised: N/A
+#
+# Description: pre-push git hook
+################################################################################
+
+#
+# The following parameters are passed to this hook:
+#
+# $1 -- Name of the remote to which the push is being done
+# $2 -- URL to which the push is being done
+#
+# If pushing without a named remote, these arguments are equal
+#
+# Information about the commits which are being pushed is supplied as lines to
+# the standard input in the form:
+#
+#   <local ref> <local sha1> <remote ref> <remote sha1>
+#
+remote="$1"
+
+#
+# Store the most recent tag since the last push to the respository
+#
+lastRepoTag=`git describe --abbrev=0 --tags origin/master`
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#
+# FAIL ON PURPOSE, FOR NOW!!!!
+#
+echo "PUSH FAILED ON PURPOSE"
+exit 1
+
+
+# End pre-push
