@@ -4,7 +4,7 @@
 #
 # Author: Benjamin Johnson
 #
-# Date Created: Saturday November 1, 2014
+# Date Created: Sunday November 2, 2014
 # Date Revised: N/A
 #
 # Description: pre-push git hook
@@ -24,31 +24,188 @@
 #   <local ref> <local sha1> <remote ref> <remote sha1>
 #
 remote="$1"
+url="$2"
 
 #
-# Store the most recent tag since the last push to the respository
+# Define needed variables
 #
-lastRepoTag=`git describe --abbrev=0 --tags origin/master`
+tagRegExp="^v[[:digit:]]+\.[[:digit:]]+(\.[[:digit:]]+)?$"
+maxVerNums=3
+
+pushErr=false
+
+#
+# Print the tag formatting rules
+#
+tag_fmt ()
+{
+    echo "Before commits can be pushed to the remote repository, the follwing"
+    echo "guidelines must be adhered to for tags newer than the last repository"
+    echo "tag."
+    echo ""
+    echo "1. Tags must be named as vXX.XX(.XX), where each XX is any string of"
+    echo "   digits and the third version number is optional."
+    echo ""
+    echo "2. There can only be one tag pointing to a specific commit."
+    echo ""
+    echo "3. Tags can only be on commits that are newer than the last commit"
+    echo "   that was pushed to the remote respository."
+}
 
 
+#
+# Ensure the version number for correctly named tags is only one increment
+# higher than the previous version
+#
+checkVerNum ()
+{
+    local incNumFlag=false
+
+    #
+    # Store the previous tag name
+    #
+    if [ $i -eq 0 ] || [ -z ${prevTagInd} ]; then
+        prevTag=${lastRepoTag}
+    else
+        prevTag=${newTags[${prevTagInd}]}
+    fi
+
+    #
+    # Grab the version numbers from the current and previous tag names and
+    # compare one digit at a time
+    #
+    prevTagNums=(`echo "${prevTag}" | grep -Eo [[:digit:]]`)
+    currTagNums=(`echo "${newTags[$i]}" | grep -Eo [[:digit:]]`)
+
+    if [ ${#prevTagNums[@]} -lt ${maxVerNums} ]; then
+        prevTagNums[${#prevTagNums[@]}]=0
+    fi
+
+    if [ ${#currTagNums[@]} -lt ${maxVerNums} ]; then
+        currTagNums[${#currTagNums[@]}]=0
+    fi
+
+    for ((j=0; j<${maxVerNums}; j++)); do
+        if [ "${incNumFlag}" = false ]; then
+            numDiff=$((${currTagNums[$j]}-${prevTagNums[$j]}))
+            if [ ${numDiff} -ne 0 ] && [ ${numDiff} -ne 1 ]; then
+                currBadTag[${#currBadTag[@]}]=${newTags[$i]}
+                prevBadTag[${#prevBadTag[@]}]=${prevTag}
+                break
+            elif [ ${numDiff} -eq 1 ]; then
+                incNumFlag=true
+            fi
+            # THIS HAS NOT BEEN TESTED!!!!
+        elif [ ${currTagNums[$j]} -ne 0 ]; then
+            currBadTag[${#currBadTag[@]}]=${newTags[$i]}
+            prevBadTag[${#prevBadTag[@]}]=${prevTag}
+            break
+        fi
+    done
+}
+
+#
+# Print tag naming convention errors
+#
+tagNameErr ()
+{
+    if [ ${#badTagName[@]} -ne 0 ]; then \
+        echo -e "\n\033[1mInvalid Tag Names:\033[0m"
+        printf "    %s\n" "${badTagName[@]}"
+        pushErr=true
+    fi
+}
+
+#
+# Print tag version number errors
+#
+tagVerErr ()
+{
+    if [ ${#currBadTag[@]} -ne 0 ]; then
+        echo -e "\n\033[1mVersion Numbers not Incremented Correctly\033[0m"
+        echo -e "\033[1m-----------------------------------------\033[0m"
+
+        for ((i=0; i<${#currBadTag[@]}; i++)); do
+            echo -e "\nPrevious Tag:     \033[1m${prevBadTag[$i]}\033[0m"
+            echo -e "Next Tag (Error): \033[1m${currBadTag[$i]}\033[0m\n"
+        done
+
+        pushErr=true
+    fi
+}
+
+#
+# Since it is possible to make an annotated tag for any commit, all of the
+# annotated tags in the repository need to be stored. This is done by first
+# grabbing all of the lightweight and annotated tag hash values in the
+# repository and checking which hash values are not the same as the commit hash
+# values the tags point to.
+#
+tagsHash=(`git rev-parse --tags`)
+tagCmtHash=(`printf "%s\n" ${tagsHash[@]} | xargs -I@ git log --format=%H -1 @`)
 
 
+#
+# Store the most recent tag since the last push to the respository. If this is
+# the first push to a repository with tags, then set lastRepoTag to v0.0,
+# forcing the first tag to be either v0.0.1, v0.1, or v1.0.
+#
+lastRepoTag=`git describe --abbrev=0 --tags ${remote}/master`
+if [ -z ${lastRepoTag} ]; then
+    lastRepoTag="v0.0"
+fi
 
+#
+# Store all of the new tags since the last push to the repository in an array.
+# The tag stored in lastRepoTag may be included in this list if the remote
+# master branch points to a commit with a tag. If this is the case, this tag
+# will be filtered out of the new tags array.
+#
+IFS_OLD=${IFS}
+IFS=$'\n'
 
+lastRepoDate="`git show -s --format=%ci origin/master`"
+newTags=(`git tag --contains ${remote}/master | xargs -I@ git log \
+         --since="${lastRepoDate}" --format="%ci @%n" -1 @ | sort \
+         | awk '{print $4}'`)
 
+IFS=${IFS_OLD}
 
+if [ ${#newTags[@]} -eq 0 ]; then
+    exit 0
+fi
 
+if [ "${newTags[0]}" = "${lastRepoTag}" ]; then
+    newTags=(${newTags[@]:1})
+fi
 
+#
+# Enforce the naming convention on tags and check correct names to ensure the
+# version number is only one increment higher than the previous version
+#
+for ((i=0; i<${#newTags[@]}; i++)); do
+    if [[ ! "${newTags[$i]}" =~ ${tagRegExp} ]]; then
+        badTagName[${#badTagName[@]}]="${newTags[$i]}"
+    else
+        checkVerNum
+        prevTagInd=$i
+    fi
+done
 
+#
+# Print any tag errors
+#
+tagNameErr
+tagVerErr
 
-
-
+if [ ${pushErr} = true ]; then
+    exit 1
+fi
 
 #
 # FAIL ON PURPOSE, FOR NOW!!!!
 #
 echo "PUSH FAILED ON PURPOSE"
 exit 1
-
 
 # End pre-push
