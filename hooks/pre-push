@@ -4,10 +4,12 @@
 #
 # Author: Benjamin Johnson
 #
-# Date Created: Sunday November 2, 2014
+# Date Created: Sunday November 9, 2014
 # Date Revised: N/A
 #
-# Description: pre-push git hook
+# Description: This Git hook checks the annotated tags for correct version
+#              numbers in the local repository before anything is pushed to the
+#              remote respository.
 ################################################################################
 
 #
@@ -30,6 +32,9 @@ url="$2"
 # Define needed variables
 #
 tagRegExp="^v[[:digit:]]+\.[[:digit:]]+(\.[[:digit:]]+)?$"
+firstTagRegExp="^v(0\.(0(\.(0|1))?|1(\.0)?)|1\.0(\.0)?)$"
+printRepTag="v%d.%d"
+printFullTag="v%d.%d.%d"
 maxVerNums=3
 
 pushErr=false
@@ -39,19 +44,28 @@ pushErr=false
 #
 tag_fmt ()
 {
-    echo "Before commits can be pushed to the remote repository, the follwing"
-    echo "guidelines must be adhered to for tags newer than the last repository"
-    echo "tag."
-    echo ""
+    echo -e "\n\033[1mRepository Annotated Tag Conventions\033[0m"
     echo "1. Tags must be named as vXX.XX(.XX), where each XX is any string of"
     echo "   digits and the third version number is optional."
     echo ""
-    echo "2. There can only be one tag pointing to a specific commit."
+    echo "2. The first version number can be either v0.0, v0.0.0, v0.1, v0.1.0,"
+    echo "   v0.0.1, v1.0, or v1.0.0."
     echo ""
-    echo "3. Tags can only be on commits that are newer than the last commit"
-    echo "   that was pushed to the remote respository."
+    echo "3. There can only be one annotated tag pointing to a specific commit."
+    echo ""
+    echo "4. Each version number must be unique."
+    echo ""
+    echo "5. Annotated tag versions are ordered by the date of the commit they"
+    echo "   point to and new version numbers must be incremented by one digit."
+    echo ""
+    echo "6. It is recommended that annotated tags point to commits on the"
+    echo "   master branch that are ready for release, although this is not"
+    echo "   enforced."
+    echo ""
+    echo "Lightweight tags may be anything the user desires, but it is not"
+    echo "advised to push lightweight tags to the repository, since they are"
+    echo "normally specific to local working copies."
 }
-
 
 #
 # Ensure the version number for correctly named tags is only one increment
@@ -62,20 +76,24 @@ checkVerNum ()
     local incNumFlag=false
 
     #
-    # Store the previous tag name
+    # Check the first tag for an accepted first tag name or store the previous
+    # tag
     #
     if [ $i -eq 0 ] || [ -z ${prevTagInd} ]; then
-        prevTag=${lastRepoTag}
+        if [[ ! "${anTags[$i]}" =~ ${firstTagRegExp} ]]; then
+            badFirstTag=${anTags[$i]}
+        fi
+        return 0
     else
-        prevTag=${newTags[${prevTagInd}]}
+        prevTag=${anTags[${prevTagInd}]}
     fi
 
     #
-    # Grab the version numbers from the current and previous tag names and
+    # Store the version numbers from the current and previous tag names and
     # compare one digit at a time
     #
+    currTagNums=(`echo "${anTags[$i]}" | grep -Eo [[:digit:]]`)
     prevTagNums=(`echo "${prevTag}" | grep -Eo [[:digit:]]`)
-    currTagNums=(`echo "${newTags[$i]}" | grep -Eo [[:digit:]]`)
 
     if [ ${#prevTagNums[@]} -lt ${maxVerNums} ]; then
         prevTagNums[${#prevTagNums[@]}]=0
@@ -85,23 +103,60 @@ checkVerNum ()
         currTagNums[${#currTagNums[@]}]=0
     fi
 
+    #
+    # Populate an array to check for repeated version numbers
+    #
+    fullVerNums[${#fullVerNums[@]}]=`printf "%s" ${currTagNums[@]}`
+
     for ((j=0; j<${maxVerNums}; j++)); do
         if [ "${incNumFlag}" = false ]; then
             numDiff=$((${currTagNums[$j]}-${prevTagNums[$j]}))
-            if [ ${numDiff} -ne 0 ] && [ ${numDiff} -ne 1 ]; then
-                currBadTag[${#currBadTag[@]}]=${newTags[$i]}
+            if [ ${numDiff} -eq 1 ]; then
+                incNumFlag=true
+            elif ( [ ${numDiff} -ne 0 ] && [ ${numDiff} -ne 1 ] ) || \
+                 [ $j -eq $((${maxVerNums}-1)) ]; then
+                currBadTag[${#currBadTag[@]}]=${anTags[$i]}
                 prevBadTag[${#prevBadTag[@]}]=${prevTag}
                 break
-            elif [ ${numDiff} -eq 1 ]; then
-                incNumFlag=true
             fi
-            # THIS HAS NOT BEEN TESTED!!!!
         elif [ ${currTagNums[$j]} -ne 0 ]; then
-            currBadTag[${#currBadTag[@]}]=${newTags[$i]}
+            currBadTag[${#currBadTag[@]}]=${anTags[$i]}
             prevBadTag[${#prevBadTag[@]}]=${prevTag}
             break
         fi
     done
+}
+
+#
+# Ensure version numbers are not accidentally repeatd by having a version number
+# with two digits match another version number with three digits, since the
+# third digit in a version number is optional
+#
+checkRepVerNum ()
+{
+    multVerNums=(`printf "%s\n" ${fullVerNums[@]} | sort | uniq -d`)
+
+    for ((i=0; i<${#multVerNums[@]}; i++)); do
+        verNums=(`printf "%s\n" ${multVerNums[$i]} | grep -Eo [[:digit:]]`)
+        lastInd=$((${#verNums[@]}-1))
+
+        repTagName=`printf "${printRepTag}\n" ${verNums[@]:0:${lastInd}}`
+        multVerTags[$i]=`printf "%s\n" ${goodTagName[@]} \
+            | grep -m 1 "${repTagName}$"`
+        multErrTags[$i]=`printf "${printFullTag}\n" ${verNums[@]}`
+    done
+}
+
+#
+# Print commit hashes that have multiple annotated tags
+#
+multTagCmtErr ()
+{
+    if [ ${#multTagCmt[@]} -ne 0 ]; then
+        echo -e "\n\033[1mCommits with Multiple Annotated Tags\033[0m"
+        printf "%s\n" "${multTagCmt[@]}"
+        pushErr=true
+    fi
 }
 
 #
@@ -110,8 +165,8 @@ checkVerNum ()
 tagNameErr ()
 {
     if [ ${#badTagName[@]} -ne 0 ]; then \
-        echo -e "\n\033[1mInvalid Tag Names:\033[0m"
-        printf "    %s\n" "${badTagName[@]}"
+        echo -e "\n\033[1mInvalid Tag Names\033[0m"
+        printf "%s\n" "${badTagName[@]}"
         pushErr=true
     fi
 }
@@ -121,13 +176,28 @@ tagNameErr ()
 #
 tagVerErr ()
 {
+    if [ ! -z ${badFirstTag} ]; then
+        echo -e "\n\033[1mBad First Tag Version Number\033[0m"
+        echo "${badFirstTag}"
+        pushErr=true
+    fi
+
+    if [ ${#multVerTags[@]} -ne 0 ]; then
+        echo -e "\n\033[1mRepeated Tag Versions\033[0m"
+        for ((i=0; i<${#multVerTags[@]}; i++)); do
+            echo "${multVerTags[$i]} -> Remove Tag ${multErrTags[$i]}"
+        done
+
+        pushErr=true
+    fi
+
     if [ ${#currBadTag[@]} -ne 0 ]; then
-        echo -e "\n\033[1mVersion Numbers not Incremented Correctly\033[0m"
+        echo -e "\n\033[1mVersion Numbers Not Incremented Correctly\033[0m"
         echo -e "\033[1m-----------------------------------------\033[0m"
 
         for ((i=0; i<${#currBadTag[@]}; i++)); do
             echo -e "\nPrevious Tag:     \033[1m${prevBadTag[$i]}\033[0m"
-            echo -e "Next Tag (Error): \033[1m${currBadTag[$i]}\033[0m\n"
+            echo -e "Next Tag (Error): \033[1m${currBadTag[$i]}\033[0m"
         done
 
         pushErr=true
@@ -141,71 +211,78 @@ tagVerErr ()
 # repository and checking which hash values are not the same as the commit hash
 # values the tags point to.
 #
-tagsHash=(`git rev-parse --tags`)
-tagCmtHash=(`printf "%s\n" ${tagsHash[@]} | xargs -I@ git log --format=%H -1 @`)
-
-
+# By default, git does not allow tag names that contain whitespace. Since
+# branches can also have the same name as tags, the tag hash values will also be
+# stored for use in identifying the commits they point to.
 #
-# Store the most recent tag since the last push to the respository. If this is
-# the first push to a repository with tags, then set lastRepoTag to v0.0,
-# forcing the first tag to be either v0.0.1, v0.1, or v1.0.
-#
-lastRepoTag=`git describe --abbrev=0 --tags ${remote}/master`
-if [ -z ${lastRepoTag} ]; then
-    lastRepoTag="v0.0"
-fi
-
-#
-# Store all of the new tags since the last push to the repository in an array.
-# The tag stored in lastRepoTag may be included in this list if the remote
-# master branch points to a commit with a tag. If this is the case, this tag
-# will be filtered out of the new tags array.
-#
-IFS_OLD=${IFS}
-IFS=$'\n'
-
-lastRepoDate="`git show -s --format=%ci origin/master`"
-newTags=(`git tag --contains ${remote}/master | xargs -I@ git log \
-         --since="${lastRepoDate}" --format="%ci @%n" -1 @ | sort \
-         | awk '{print $4}'`)
-
-IFS=${IFS_OLD}
-
-if [ ${#newTags[@]} -eq 0 ]; then
+tagLabel=(`git tag`)
+tagHash=(`git rev-parse --tags`)
+if [ ${#tagHash[@]} -eq 0 ]; then
     exit 0
 fi
 
-if [ "${newTags[0]}" = "${lastRepoTag}" ]; then
-    newTags=(${newTags[@]:1})
+tagCmtHash=(`printf "%s\n" "${tagHash[@]}" | xargs -I@ git log \
+             --format=%H -1 @`)
+
+for ((i=0; i<${#tagHash[@]}; i++)); do
+    if [ "${tagCmtHash[$i]}" != "${tagHash[$i]}" ]; then
+        anTagHash[${#anTagHash[@]}]=${tagHash[$i]}
+        anTagLabel[${#anTagLabel[@]}]=${tagLabel[$i]}
+        anTagCmtHash[${#anTagCmtHash[@]}]=${tagCmtHash[$i]}
+
+        cmtDateTag[${#cmtDateTag[@]}]="`git log --format=%ci -1 \
+            ${tagCmtHash[$i]}` ${tagLabel[$i]}"
+    fi
+done
+
+if [ ${#anTagHash[@]} -eq 0 ]; then
+    exit 0
 fi
+
+#
+# Check for annotated tags that point to the same commit. Each commit is allowed
+# to have only one annotated tag that specifies the release version.
+#
+multTagCmt=(`printf "%s\n" "${anTagCmtHash[@]}" | sort | uniq -d`)
+
+#
+# Sort the annotated tag labels in chronological order of the commits they point
+# to
+#
+anTags=(`printf "%s\n" "${cmtDateTag[@]}" | sort | awk '{print $4}'`)
 
 #
 # Enforce the naming convention on tags and check correct names to ensure the
 # version number is only one increment higher than the previous version
 #
-for ((i=0; i<${#newTags[@]}; i++)); do
-    if [[ ! "${newTags[$i]}" =~ ${tagRegExp} ]]; then
-        badTagName[${#badTagName[@]}]="${newTags[$i]}"
+for ((i=0; i<${#anTags[@]}; i++)); do
+    if [[ ! "${anTags[$i]}" =~ ${tagRegExp} ]]; then
+        badTagName[${#badTagName[@]}]="${anTags[$i]}"
     else
         checkVerNum
         prevTagInd=$i
+
+        goodTagName[${#goodTagName[@]}]="${anTags[$i]}"
     fi
 done
 
 #
+# Check for repeated version numbers
+#
+if [ ${#fullVerNums[@]} -ne 0 ]; then
+    checkRepVerNum
+fi
+
+#
 # Print any tag errors
 #
+multTagCmtErr
 tagNameErr
 tagVerErr
 
 if [ ${pushErr} = true ]; then
+    tag_fmt
     exit 1
 fi
-
-#
-# FAIL ON PURPOSE, FOR NOW!!!!
-#
-echo "PUSH FAILED ON PURPOSE"
-exit 1
 
 # End pre-push
