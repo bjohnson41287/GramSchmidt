@@ -4,7 +4,7 @@
 # Author: Ben Johnson
 #
 # Date Created: Saturday October 11, 2014
-# Date Revised: Sunday October 26, 2014
+# Date Revised: Tuesday November 11, 2014
 #
 # Description: The .gitignore file tells git which files and/or directories to
 #              intentionally ignore in a git project.
@@ -21,6 +21,8 @@
 /doc/
 /exec/
 /header/
+
+/release/
 
 /.targets/
 
