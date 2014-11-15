@@ -5,7 +5,7 @@
 # Author: Benjamin Johnson
 #
 # Date Created: Monday September 29, 2014
-# Date Revised: Thursday November 13, 2014
+# Date Revised: Friday November 14, 2014
 #
 # Description: Bash script used to compile the GramSchmidt program
 ################################################################################
@@ -221,145 +221,145 @@ elif [ "$1" = "release" ]; then
     #
     # Check the tag name argument to ensure it is a valid annotated tag name
     #
-    if [ -d ${PROJ_ROOT_PATH}/.git ]; then
-        if [ -z "$2" ]; then
-            echo -e "Tag name not specified."
-            tagName=`git describe`
-            echo -n "Use the most current annotated tag ${tagName}? (y/n): "
-            read useTagAns
-
-            case "${useTagAns}" in
-                y | yes)
-                    ;;
-                n | no)
-                    echo -e "Aborting release"
-                    return 1
-                    ;;
-                *)
-                    echo -e "ERROR: Unknown input \"${useTagAns}\""
-                    echo "Aborting release"
-                    return 1
-                    ;;
-            esac
-
-        else
-            tagName="$2"
-        fi
-
-        if [ ! -z ${tagName} ]; then
-            #
-            # Grab the unique remote URLs to the current repository and ask the
-            # user which remote should be selected. If only one remote is found,
-            # do not prompt the user.
-            #
-            remoteURL=(`git remote | git ls-remote --get-url`)
-            if [ ${#remoteURL[@]} -eq 0 ]; then
-                echo "ERROR: No remote repository found. A remote repository"
-                echo "must exist to validate release versions."
-                return 1
-
-            elif [ ${#remoteURL[@]} -gt 1 ]; then
-                echo -e "\nRemote Repositories"
-                echo "-------------------"
-
-                for ((i=0; i<${#remoteURL[@]}; i++)); do
-                    echo -e "$(($i+1)))\t${remoteURL[$i]}"
-                done
-
-                echo -en "\nRepository to read annotated tags: "
-                read URLnum
-
-                #
-                # Check for a valid input. Bash complains if the input is not an
-                # integer, since it expects it in the comparison below.
-                #
-                if [[ ! ${URLnum} =~ ^[0-9]+$ ]] || \
-                   [ ${URLnum} -lt 1 ] || \
-                   [ ${URLnum} -gt ${#remoteURL[@]} ]; then
-                    echo "ERROR: Input ${URLnum} is not a valid option"
-                    return 1
-                else
-                    repoURL=${remoteURL[$((${URLnum}-1))]}
-                fi
-            else
-                repoURL=${remoteURL[0]}
-            fi
-
-            #
-            # Check the local repository for the same tag and commit hash values
-            # as the remote repository
-            #
-            localTagHash=`git show-ref --tags ${tagName} | awk '{print $1}'`
-            if [ -z ${localTagHash} ]; then
-                echo -n "ERROR: Tag ${tagName} does not exist in the local "
-                echo "repository."
-                return 1
-            fi
-
-            echo -e "Accessing annotated tags from repository: ${repoURL}\n"
-
-            tagRegExp="${tagName}$|${tagName}\^\{\}$"
-            rmtTagRefs=(`git ls-remote --tags ${repoURL} | \
-                         grep -E "${tagRegExp}" | awk '{print $1}'`)
-            rmtTagHash=${rmtTagRefs[0]}
-            rmtCmtHash=${rmtTagRefs[1]}
-
-            if [ "${rmtTagHash}" = "${rmtCmtHash}" ]; then
-                echo "ERROR: Specified tag ${tagName} is not an annotated tag"
-                echo "       in the remote repository."
-                return 1
-            fi
-
-            if [ "${localTagHash}" != "${rmtTagHash}" ]; then
-                echo "ERROR: Local tag ${tagName} SHA-1 hash does not match the"
-                echo "       repository tag ${tagName} SHA-1 hash. Either"
-                echo "       update the remote or local repository or specify"
-                echo "       another tag."
-                return 1
-            fi
-
-            localCmtHash=`git log --format=%H -1 ${localTagHash}`
-
-            if [ "${localTagHash}" = "${localCmtHash}" ]; then
-                echo "ERROR: Specified tag ${tagName} is not an annotated tag"
-                echo "       in the local repository."
-                return 1
-            fi
-
-            if [ "${rmtCmtHash}" != "${localCmtHash}" ]; then
-                echo "ERROR: Specified tag ${tagName} points to different"
-                echo "       commit snapshots in remote and local repositories."
-                echo "       Either update the remote or local repository or"
-                echo "       specify another tag."
-                return 1
-            fi
-
-            #
-            # Create the release tarball
-            #
-            tagDir=`echo ${tagName} | sed "s|\.|_|"`
-            relDir="${PROJ_ROOT_PATH}/release/${tagDir}"
-            archPrefix="`basename ${PROJ_ROOT_PATH}`/"
-            archName="`basename ${PROJ_ROOT_PATH}`_${tagDir}.tar.gz"
-
-            if [ ! -d ${relDir} ]; then
-                mkdir -p ${relDir}
-            fi
-
-            git archive ${localTagHash} --prefix="${archPrefix}" | \
-                gzip > "${relDir}/${archName}"
-
-            echo "Generated release tarball:"
-            echo "${relDir}/${archName}"
-        else
-            echo "ERROR: No annotated tags found in the local project."
-            echo "       You must create one and push it to the remote"
-            echo "       repository before a release tarball can be created."
-        fi
-    else
+    if [ ! -d ${PROJ_ROOT_PATH}/.git ]; then
         echo "ERROR"
         echo "${PROJ_ROOT_PATH}/.git directory not found."
         echo "Use the 'tar' command instead to generate an archive."
+        return 1
+    fi
+
+    if [ -z "$2" ]; then
+        echo -e "Tag name not specified."
+        tagName=`git describe`
+        echo -n "Use the most current annotated tag ${tagName}? (y/n): "
+        read useTagAns
+
+        case "${useTagAns}" in
+            y | yes)
+                ;;
+            n | no)
+                echo -e "Aborting release"
+                return 1
+                ;;
+            *)
+                echo -e "ERROR: Unknown input \"${useTagAns}\""
+                echo "Aborting release"
+                return 1
+                ;;
+        esac
+
+    else
+        tagName="$2"
+    fi
+
+    if [ ! -z ${tagName} ]; then
+        #
+        # Grab the unique remote URLs to the current repository and ask the
+        # user which remote should be selected. If only one remote is found,
+        # do not prompt the user.
+        #
+        remoteURL=(`git remote | git ls-remote --get-url`)
+        if [ ${#remoteURL[@]} -eq 0 ]; then
+            echo "ERROR: No remote repository found. A remote repository must"
+            echo "exist to validate release versions."
+            return 1
+
+        elif [ ${#remoteURL[@]} -gt 1 ]; then
+            echo -e "\nRemote Repositories"
+            echo "-------------------"
+
+            for ((i=0; i<${#remoteURL[@]}; i++)); do
+                echo -e "$(($i+1)))\t${remoteURL[$i]}"
+            done
+
+            echo -en "\nRepository to read annotated tags: "
+            read URLnum
+
+            #
+            # Check for a valid input. Bash complains if the input is not an
+            # integer, since it expects it in the comparison below.
+            #
+            if [[ ! ${URLnum} =~ ^[0-9]+$ ]] || \
+               [ ${URLnum} -lt 1 ] || \
+               [ ${URLnum} -gt ${#remoteURL[@]} ]; then
+                echo "ERROR: Input ${URLnum} is not a valid option"
+                return 1
+            else
+                repoURL=${remoteURL[$((${URLnum}-1))]}
+            fi
+        else
+            repoURL=${remoteURL[0]}
+        fi
+
+        #
+        # Check the local repository for the same tag and commit hash values
+        # as the remote repository
+        #
+        localTagHash=`git show-ref --tags ${tagName} | awk '{print $1}'`
+        if [ -z ${localTagHash} ]; then
+            echo -n "ERROR: Tag ${tagName} does not exist in the local "
+            echo "repository."
+            return 1
+        fi
+
+        echo -e "Accessing annotated tags from repository: ${repoURL}\n"
+
+        tagRegExp="${tagName}$|${tagName}\^\{\}$"
+        rmtTagRefs=(`git ls-remote --tags ${repoURL} | \
+                     grep -E "${tagRegExp}" | awk '{print $1}'`)
+        rmtTagHash=${rmtTagRefs[0]}
+        rmtCmtHash=${rmtTagRefs[1]}
+
+        if [ "${rmtTagHash}" = "${rmtCmtHash}" ]; then
+            echo "ERROR: Specified tag ${tagName} is not an annotated tag in"
+            echo "       the remote repository."
+            return 1
+        fi
+
+        if [ "${localTagHash}" != "${rmtTagHash}" ]; then
+            echo "ERROR: Local tag ${tagName} SHA-1 hash does not match the"
+            echo "       repository tag ${tagName} SHA-1 hash. Either update"
+            echo "       the remote or local repository or specify another tag."
+            return 1
+        fi
+
+        localCmtHash=`git log --format=%H -1 ${localTagHash}`
+
+        if [ "${localTagHash}" = "${localCmtHash}" ]; then
+            echo "ERROR: Specified tag ${tagName} is not an annotated tag in"
+            echo "       the local repository."
+            return 1
+        fi
+
+        if [ "${rmtCmtHash}" != "${localCmtHash}" ]; then
+            echo "ERROR: Specified tag ${tagName} points to different commit"
+            echo "       snapshots in remote and local repositories. Either"
+            echo "       update the remote or local repository or specify"
+            echo "       another tag."
+            return 1
+        fi
+
+        #
+        # Create the release tarball
+        #
+        tagDir=`echo ${tagName} | sed "s|\.|_|"`
+        relDir="${PROJ_ROOT_PATH}/release/${tagDir}"
+        archPrefix="`basename ${PROJ_ROOT_PATH}`/"
+        archName="`basename ${PROJ_ROOT_PATH}`_${tagDir}.tar.gz"
+
+        if [ ! -d ${relDir} ]; then
+            mkdir -p ${relDir}
+        fi
+
+        git archive ${localTagHash} --prefix="${archPrefix}" | \
+            gzip > "${relDir}/${archName}"
+
+        echo "Generated release tarball:"
+        echo "${relDir}/${archName}"
+    else
+        echo "ERROR: No annotated tags found in the local project. You must"
+        echo "       create one and push it to the remote repository before a"
+        echo "       release tarball can be created."
     fi
 
 else
