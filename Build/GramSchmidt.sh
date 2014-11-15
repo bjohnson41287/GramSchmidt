@@ -5,7 +5,7 @@
 # Author: Benjamin Johnson
 #
 # Date Created: Monday September 29, 2014
-# Date Revised: Friday November 14, 2014
+# Date Revised: Saturday November 15, 2014
 #
 # Description: Bash script used to compile the GramSchmidt program
 ################################################################################
@@ -40,20 +40,20 @@ build_man ()
     echo -e "\t    Configure and compile the project source code."
     echo ""
     echo -e "\tdistclean"
-    echo -en "\t    Delete all files created by the \033[4mconfigure\033[0m "
-    echo -e "and \033[4mbuild\033[0m steps."
+    echo -en "\t    Delete all files and directories created by the "
+    echo -e "\033[4mconfigure\033[0m and \033[4mbuild\033[0m steps."
     echo ""
     echo -e "\trelease"
     echo -en "\t    Create a release tarball of the commit pointed to by "
-    echo -en "\033[4mTAG\033[0m. \033[4mTAG\033[0m can either be the name or "
-    echo -e "the SHA-1 hash of an annotated tag."
-    echo -en "\t    If a lightweight tag is given, an error will be generated "
-    echo -en "saying the SHA-1 of the tag and commit are the same. If "
-    echo -e "\033[4mTAG\033[0m is not"
-    echo -en "\t    specified, then the most current annotated tag is found in "
-    echo "the local repository and the user is prompted for whether or not"
-    echo -en "\t    they would like to create a release tarball for this tag "
-    echo "version."
+    echo -en "\033[4mTAG\033[0m. \033[4mTAG\033[0m must be the name of an "
+    echo "annotated tag. If a lightweight tag is given,"
+    echo -en "\t    an error will be generated saying the SHA-1 of the tag and "
+    echo -en "commit are the same. If \033[4mTAG\033[0m is not specified, then "
+    echo "the most current"
+    echo -en "\t    annotated tag is found in the local repository and the "
+    echo -n "user is prompted for whether or not they would like to create a "
+    echo "release"
+    echo -e "\t    tarball for this tag version."
     echo ""
     echo -en "\t    A remote repository must also exist and will be searched "
     echo -en "for the same \033[4mTAG\033[0m value. If a remote is not found "
@@ -115,11 +115,16 @@ if [ "$1" = "setenv" ]; then
     echo "Setting environment"
 
     #
-    # Set PROJ_ROOT_PATH as the project root directory and STD_MAKE_PATH
-    # as the directory where the standard files used by "make" reside
+    # Set PROJ_ROOT_PATH as the project root directory and STD_MAKE_PATH as the
+    # as directory where the standard files used by 'make' reside. Also set
+    # other needed environment variables.
     #
     export PROJ_ROOT_PATH=$(cd `dirname ${BASH_SOURCE[0]}`/.. && pwd)
     export STD_MAKE_PATH=Build/StdMake
+
+    export BUILD_LOG_PATH=${PROJ_ROOT_PATH}/Build/Logs
+    export DOC_PATH=${PROJ_ROOT_PATH}/doc
+    export RELEASE_PATH=${PROJ_ROOT_PATH}/release
 
     #
     # Link the repository git hooks to the .git/hooks directory, if it exists
@@ -151,8 +156,17 @@ elif [ "$1" = "configure" ]; then
         return 1
     fi
 
+    #
+    # Create the build logs directory if it does not exist and configure the
+    # project
+    #
+    if [ ! -d ${BUILD_LOG_PATH} ]; then
+        mkdir ${BUILD_LOG_PATH}
+    fi
+
     echo "Configuring GramSchmidt"
-    make -C ${PROJ_ROOT_PATH} configure
+    make -C ${PROJ_ROOT_PATH} configure > ${BUILD_LOG_PATH}/${configOutLog} \
+        |& tee > ${BUILD_LOG_PATH}/${configErrLog}
 
 #
 # Build the project
@@ -170,16 +184,25 @@ elif [ "$1" = "build" ]; then
     if [ ${projEnvSet} = false ]; then
         return 1
     fi
-    
+
     #
-    # Configure and build the project. This ensures everything is up to date for
-    # make.
+    # Create the build logs directory if it does not exist
+    #
+    if [ ! -d ${BUILD_LOG_PATH} ]; then
+        mkdir ${BUILD_LOG_PATH}
+    fi
+
+    #
+    # Configure and compile the project. This ensures everything is up to date
+    # for make.
     #
     echo "Configuring GramSchmidt"
-    make -C ${PROJ_ROOT_PATH} configure
+    make -C ${PROJ_ROOT_PATH} configure > ${BUILD_LOG_PATH}/${configOutLog} \
+        |& tee > ${BUILD_LOG_PATH}/${configErrLog}
 
     echo "Building GramSchmidt"
-    make -C ${PROJ_ROOT_PATH} all
+    make -C ${PROJ_ROOT_PATH} all > ${BUILD_LOG_PATH}/${buildOutLog} \
+        |& tee > ${BUILD_LOG_PATH}/${buildErrLog}
 
 #
 # Delete all files created by the configure and/or build steps
@@ -197,6 +220,14 @@ elif [ "$1" = "distclean" ]; then
     if [ ${projEnvSet} = false ]; then
         return 1
     fi
+
+    #
+    # Remove directories created by this script and have 'make' remove
+    # everthing created by the 'configure' and 'all' targets in the Makefiles.
+    #
+    rm -rf ${BUILD_LOG_PATH}
+    rm -rf ${DOC_PATH}
+    rm -rf ${RELEASE_PATH}
 
     make -C ${PROJ_ROOT_PATH} distclean
 
@@ -252,115 +283,113 @@ elif [ "$1" = "release" ]; then
         tagName="$2"
     fi
 
-    if [ ! -z ${tagName} ]; then
-        #
-        # Grab the unique remote URLs to the current repository and ask the
-        # user which remote should be selected. If only one remote is found,
-        # do not prompt the user.
-        #
-        remoteURL=(`git remote | git ls-remote --get-url`)
-        if [ ${#remoteURL[@]} -eq 0 ]; then
-            echo "ERROR: No remote repository found. A remote repository must"
-            echo "exist to validate release versions."
-            return 1
-
-        elif [ ${#remoteURL[@]} -gt 1 ]; then
-            echo -e "\nRemote Repositories"
-            echo "-------------------"
-
-            for ((i=0; i<${#remoteURL[@]}; i++)); do
-                echo -e "$(($i+1)))\t${remoteURL[$i]}"
-            done
-
-            echo -en "\nRepository to read annotated tags: "
-            read URLnum
-
-            #
-            # Check for a valid input. Bash complains if the input is not an
-            # integer, since it expects it in the comparison below.
-            #
-            if [[ ! ${URLnum} =~ ^[0-9]+$ ]] || \
-               [ ${URLnum} -lt 1 ] || \
-               [ ${URLnum} -gt ${#remoteURL[@]} ]; then
-                echo "ERROR: Input ${URLnum} is not a valid option"
-                return 1
-            else
-                repoURL=${remoteURL[$((${URLnum}-1))]}
-            fi
-        else
-            repoURL=${remoteURL[0]}
-        fi
-
-        #
-        # Check the local repository for the same tag and commit hash values
-        # as the remote repository
-        #
-        localTagHash=`git show-ref --tags ${tagName} | awk '{print $1}'`
-        if [ -z ${localTagHash} ]; then
-            echo -n "ERROR: Tag ${tagName} does not exist in the local "
-            echo "repository."
-            return 1
-        fi
-
-        echo -e "Accessing annotated tags from repository: ${repoURL}\n"
-
-        tagRegExp="${tagName}$|${tagName}\^\{\}$"
-        rmtTagRefs=(`git ls-remote --tags ${repoURL} | \
-                     grep -E "${tagRegExp}" | awk '{print $1}'`)
-        rmtTagHash=${rmtTagRefs[0]}
-        rmtCmtHash=${rmtTagRefs[1]}
-
-        if [ "${rmtTagHash}" = "${rmtCmtHash}" ]; then
-            echo "ERROR: Specified tag ${tagName} is not an annotated tag in"
-            echo "       the remote repository."
-            return 1
-        fi
-
-        if [ "${localTagHash}" != "${rmtTagHash}" ]; then
-            echo "ERROR: Local tag ${tagName} SHA-1 hash does not match the"
-            echo "       repository tag ${tagName} SHA-1 hash. Either update"
-            echo "       the remote or local repository or specify another tag."
-            return 1
-        fi
-
-        localCmtHash=`git log --format=%H -1 ${localTagHash}`
-
-        if [ "${localTagHash}" = "${localCmtHash}" ]; then
-            echo "ERROR: Specified tag ${tagName} is not an annotated tag in"
-            echo "       the local repository."
-            return 1
-        fi
-
-        if [ "${rmtCmtHash}" != "${localCmtHash}" ]; then
-            echo "ERROR: Specified tag ${tagName} points to different commit"
-            echo "       snapshots in remote and local repositories. Either"
-            echo "       update the remote or local repository or specify"
-            echo "       another tag."
-            return 1
-        fi
-
-        #
-        # Create the release tarball
-        #
-        tagDir=`echo ${tagName} | sed "s|\.|_|"`
-        relDir="${PROJ_ROOT_PATH}/release/${tagDir}"
-        archPrefix="`basename ${PROJ_ROOT_PATH}`/"
-        archName="`basename ${PROJ_ROOT_PATH}`_${tagDir}.tar.gz"
-
-        if [ ! -d ${relDir} ]; then
-            mkdir -p ${relDir}
-        fi
-
-        git archive ${localTagHash} --prefix="${archPrefix}" | \
-            gzip > "${relDir}/${archName}"
-
-        echo "Generated release tarball:"
-        echo "${relDir}/${archName}"
-    else
+    if [ -z ${tagName} ]; then
         echo "ERROR: No annotated tags found in the local project. You must"
         echo "       create one and push it to the remote repository before a"
         echo "       release tarball can be created."
     fi
+
+    #
+    # Grab the unique remote URLs to the current repository and ask the user
+    # which remote should be selected. If only one remote is found, do not
+    # prompt the user.
+    #
+    remoteURL=(`git remote | git ls-remote --get-url`)
+    if [ ${#remoteURL[@]} -eq 0 ]; then
+        echo "ERROR: No remote repository found. A remote repository must exist"
+        echo "to validate release versions."
+        return 1
+
+    elif [ ${#remoteURL[@]} -gt 1 ]; then
+        echo -e "\nRemote Repositories"
+        echo "-------------------"
+
+        for ((i=0; i<${#remoteURL[@]}; i++)); do
+            echo -e "$(($i+1)))\t${remoteURL[$i]}"
+        done
+
+        echo -en "\nRepository to read annotated tags: "
+        read URLnum
+
+        #
+        # Check for a valid input. Bash complains if the input is not an
+        # integer, since it expects it in the comparison below.
+        #
+        if [[ ! ${URLnum} =~ ^[0-9]+$ ]] || \
+           [ ${URLnum} -lt 1 ] || \
+           [ ${URLnum} -gt ${#remoteURL[@]} ]; then
+            echo "ERROR: Input ${URLnum} is not a valid option"
+            return 1
+        else
+            repoURL=${remoteURL[$((${URLnum}-1))]}
+        fi
+    else
+        repoURL=${remoteURL[0]}
+    fi
+
+    #
+    # Check the local repository for the same tag and commit hash values
+    # as the remote repository
+    #
+    localTagHash=`git show-ref --tags ${tagName} | awk '{print $1}'`
+    if [ -z ${localTagHash} ]; then
+        echo "ERROR: Tag ${tagName} does not exist in the local repository."
+        return 1
+    fi
+
+    echo -e "Accessing annotated tags from repository: ${repoURL}\n"
+
+    tagRegExp="${tagName}$|${tagName}\^\{\}$"
+    rmtTagRefs=(`git ls-remote --tags ${repoURL} | \
+                 grep -E "${tagRegExp}" | awk '{print $1}'`)
+    rmtTagHash=${rmtTagRefs[0]}
+    rmtCmtHash=${rmtTagRefs[1]}
+
+    if [ "${rmtTagHash}" = "${rmtCmtHash}" ]; then
+        echo "ERROR: Specified tag ${tagName} is not an annotated tag in the"
+        echo "       remote repository."
+        return 1
+    fi
+
+    if [ "${localTagHash}" != "${rmtTagHash}" ]; then
+        echo "ERROR: Local tag ${tagName} SHA-1 hash does not match the"
+        echo "       repository tag ${tagName} SHA-1 hash. Either update the"
+        echo "       remote or local repository or specify another tag."
+        return 1
+    fi
+
+    localCmtHash=`git log --format=%H -1 ${localTagHash}`
+
+    if [ "${localTagHash}" = "${localCmtHash}" ]; then
+        echo "ERROR: Specified tag ${tagName} is not an annotated tag in the"
+        echo "       local repository."
+        return 1
+    fi
+
+    if [ "${rmtCmtHash}" != "${localCmtHash}" ]; then
+        echo "ERROR: Specified tag ${tagName} points to different commit"
+        echo "       snapshots in remote and local repositories. Either update"
+        echo "       the remote or local repository or specify another tag."
+        return 1
+    fi
+
+    #
+    # Create the release tarball
+    #
+    tagDir=`echo ${tagName} | sed "s|\.|_|g"`
+    relDir="${RELEASE_PATH}/${tagDir}"
+    archPrefix="`basename ${PROJ_ROOT_PATH}`/"
+    archName="`basename ${PROJ_ROOT_PATH}`_${tagDir}.tar.gz"
+
+    if [ ! -d ${relDir} ]; then
+        mkdir -p ${relDir}
+    fi
+
+    git archive ${localTagHash} --prefix="${archPrefix}" | \
+        gzip > "${relDir}/${archName}"
+
+    echo "Generated release tarball:"
+    echo "${relDir}/${archName}"
 
 else
     #

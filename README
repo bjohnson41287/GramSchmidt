@@ -9,3 +9,5 @@ Since this is the first program I have written that uses the git version control
 system, it is primarily for the purpose of becoming familiar with git and to
 learn how to incorporate libraries, Makefiles, and Doxygen into a C++ program
 directory structure.
+
+$Format:%cd$ -> THIS SHOULD NOT EXPAND!!!!
