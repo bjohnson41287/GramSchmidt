@@ -4,25 +4,21 @@
 # Author: Ben Johnson
 #
 # Date Created: Saturday October 18, 2014
-# Date Revised: N/A
+# Date Revised: Friday November 14, 2014
 #
 # Description: The .gitattributes file defines actions taken for particular
 #              files.
+# $Format:%cd And some more strings$
 ################################################################################
 
 #
 # Define the archive export-subst attribute for all files
-# MODIFY THIS WHEN CREATING AN ARCHIVE!!!!
 # 
 *   export-subst
 
-
-
-
-
-
-
-
-
+README      -export-subst
+GPL_V3      -export-subst
+Doxyfile    -export-subst
+/template/  -export-subst
 
 # End .gitattributes

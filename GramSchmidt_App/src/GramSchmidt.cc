@@ -36,6 +36,7 @@
 **  You should have received a copy of the GNU General Public License in the
 **  GPL_V3 file along with GramSchmidt.
 **  If not, see <http://www.gnu.org/licenses/>.
+**  $Format:%cd$
 ********************************************************************************
 */
 

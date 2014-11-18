@@ -9,6 +9,7 @@
 # Description: A general Makefile that allows make to descend into the
 #              directories from the current directory and continue execution if
 #              another Makefile is found.
+# $Format:%cd$
 ################################################################################
 
 #
