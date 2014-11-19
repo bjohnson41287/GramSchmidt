@@ -8,10 +8,11 @@
 **          vectors and performing mathematical operations with other vector
 **          objects.
 **
-** @author  Ben Johnson
+** @author  $Format:%an$
 **
-**          DateCreated: Monday October 20, 2014
-** @date    Tuesday October 28, 2014
+** @date    $Format:%cd$
+**
+** @ifnot (DATE_CREATED) Date Created: Monday October 20, 2014 @endif
 **
 ** @copyright Copyright 2014 by Benjamin Johnson\n
 **            You can freely redistribute and/or modify the contents of this
