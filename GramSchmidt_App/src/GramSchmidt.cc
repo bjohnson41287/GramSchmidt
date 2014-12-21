@@ -48,8 +48,7 @@
 /*-------------------------------[Begin Code]---------------------------------*/
 /**
 ********************************************************************************
-** Function: main
-** @brief   This is the main() function for the start of the GramSchmidt C++
+** @details This is the main() function for the start of the GramSchmidt C++
 **          program.
 ** @param   argc    Number of program input arguments
 ** @param   argv[]  Array of char pointers to the input arguments

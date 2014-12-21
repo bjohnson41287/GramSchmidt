@@ -6,12 +6,13 @@
 **
 ** @details Many C++ programs use a common set of preprocessor macros as
 **          constants, flags, functions, or for other purposes. This file
-**          defines the macros that are used throughout this program.
+**          defines common macros that are used throughout this program.
 **
-** @author  Ben Johnson
+** @author  $Format:%an$
 **
-**          Date Created: Monday October 27, 2014
-** @date    Monday October 27, 2014
+** @date    $Format:%cD$
+**
+** @ifnot (DATE_CREATED) Date Created: Monday October 27, 2014 @endif
 **
 ** @copyright Copyright 2014 by Benjamin Johnson\n
 **            You can freely redistribute and/or modify the contents of this
@@ -44,16 +45,32 @@
 /*-------------------------------[Begin Code]---------------------------------*/
 /**
 ********************************************************************************
-** ADD DOXYGEN COMMENTS HERE, IF NEEDED!!!!
+** @def   CPU_64_BIT
+** @brief A macro that is set if the user's computer is 64-bit.
 **
-**
-**
+** @def   CPU_32_BIT
+** @brief A macro that is set if the user's computer is 32-bit.
 ********************************************************************************
 */
 #if defined(__x86_64__) || defined(_M_x64)
     #define CPU_64_BIT
 #else
     #define CPU_32_BIT
+#endif
+
+/*
+********************************************************************************
+** Documentation macros for doxygen use
+********************************************************************************
+*/
+#ifdef DOXYGEN_ONLY
+    #ifndef CPU_64_BIT
+    #define CPU_64_BIT
+    #endif
+
+    #ifndef CPU_32_BIT
+    #define CPU_32_BIT
+    #endif
 #endif
 
 #endif

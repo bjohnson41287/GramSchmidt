@@ -4,12 +4,13 @@
 **
 ** @brief   Declaration of the Vector class
 **
-** @details All members of methods of the Vector class are declared here.
+** @details All members and methods of the Vector class are declared here.
 **
-** @author  Ben Johnson
+** @author  $Format:%an$
 **
-**          Date Created: Monday October 20, 2014
-** @date    Tuesday October 28, 2014
+** @date    $Format:%cD$
+**
+** @ifnot (DATE_CREATED) Date Created: Monday October 20, 2014 @endif
 **
 ** @copyright Copyright 2014 by Benjamin Johnson\n
 **            You can freely redistribute and/or modify the contents of this
@@ -47,9 +48,9 @@
 /**
 ********************************************************************************
 ** @class   Vector
-**
-**
-**
+** @brief   Incorporate n-dimensional vectors and vector math operations
+** @details A class to implement general n-dimensional vectors and perform
+**          various vector math operations.
 ********************************************************************************
 */
 class Vector
@@ -61,8 +62,8 @@ class Vector
 
     public:
 
-        /*
-        ** Default constructor (disabled)
+        /**
+        ** @brief Default constructor (disabled)
         */
         Vector() = delete;
 
@@ -71,29 +72,28 @@ class Vector
         */
         Vector(unsigned int n);
 
-        /*
-        ** Default copy constructor (disabled)
+        /**
+        ** @brief Default copy constructor (disabled)
         */
         Vector(const Vector&) = delete;
 
-        /*
-        ** Default copy assignment (disabled)
+        /**
+        ** @brief Default copy assignment (disabled)
         */
         Vector& operator=(const Vector&) = delete;
 
-        /*
-        ** Default move constructor
-        **
+        /**
+        ** @brief TODO: MOVE DOCUMENTATION Default move constructor
         */
         Vector(Vector&&) = default;
 
-        /*
-        ** Default move assignment
+        /**
+        ** @brief TODO: MOVE DOCUMENTATION Default move assignment
         */
         Vector& operator=(Vector&&) = default;
 
-        /*
-        ** Default destructor (disabled)
+        /**
+        ** @brief TODO: MOVE DOCUMENTATION Default destructor (disabled)
         */
         ~Vector();
 

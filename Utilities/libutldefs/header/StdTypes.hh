@@ -7,10 +7,11 @@
 ** @details All C++ variable types are defined using typedef, along with boolean
 **          true and false values and the NULL macro.
 **
-** @author  Ben Johnson
+** @author  $Format:%an$
 **
-**          Date Created: Sunday October 26, 2014
-** @date    Monday October 27, 2014
+** @date    $Format:%cD$
+**
+** @ifnot (DATE_CREATED) Date Created: Sunday October 26, 2014 @endif
 **
 ** @copyright Copyright 2014 by Benjamin Johnson\n
 **            You can freely redistribute and/or modify the contents of this
@@ -48,9 +49,14 @@
 /*-------------------------------[Begin Code]---------------------------------*/
 /**
 ********************************************************************************
-** ADD DOXYGEN COMMENTS HERE!!!! -> Describe the typedef use for each variable!
+** @def   true
+** @brief Boolean type definition for true if the compiler does not define it
 **
+** @def   false
+** @brief Boolean type definition for false if the compiler does not define it
 **
+** @def   NULL
+** @brief Defined value for NULL if the compiler does not define it
 **
 ********************************************************************************
 */
@@ -58,17 +64,32 @@
 /*
 ** Type define each standard C++ variable type for a 64-bit processor
 */
-#if defined(CPU_64_BIT)
-    typedef unsigned char      UINT8;
-    typedef unsigned short int UINT16;
-    typedef unsigned int       UINT32;
-    typedef unsigned long int  UINT64;
+#ifdef CPU_64_BIT
+    typedef unsigned char      UINT8;   /**< 8-bit unsigned variable for 64-bit
+                                        **   CPU */
+    typedef unsigned short int UINT16;  /**< 16-bit unsigned variable for 64-bit
+                                        **   CPU */
+    typedef unsigned int       UINT32;  /**< 32-bit unsigned variable for 64-bit
+                                        **   CPU */
+    typedef unsigned long int  UINT64;  /**< 64-bit unsigned variable for 64-bit
+                                        **   CPU */
 
-    typedef signed char      INT8;
-    typedef signed short int INT16;
-    typedef signed int       INT32;
-    typedef signed long int  INT64;
-#elif defined(CPU_32_BIT)
+    typedef signed char      INT8;      /**< 8-bit signed variable for 64-bit
+                                        **   CPU */
+    typedef signed short int INT16;     /**< 16-bit signed variable for 64-bit
+                                        **   CPU */
+    typedef signed int       INT32;     /**< 32-bit signed variable for 64-bit
+                                        **   CPU */
+    typedef signed long int  INT64;     /**< 64-bit signed variable for 64-bit
+                                        **   CPU */
+#endif
+
+/*
+** Type define each standard C++ variable type for a 32-bit processor
+*/
+#ifdef CPU_32_BIT
+    typedef unsigned char      UINT8;   /**< 8-bit unsigned variable for 32-bit
+                                        **   CPU */
     //printf("I'm a 32-bit computer!\n");
 #endif
 
@@ -81,6 +102,10 @@
 
 #ifndef false
 #define false 0
+#endif
+
+#ifndef NULL
+#define NULL 0
 #endif
 
 /*
