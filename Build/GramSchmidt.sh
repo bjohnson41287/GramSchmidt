@@ -5,7 +5,7 @@
 # Author: Benjamin Johnson
 #
 # Date Created: Monday September 29, 2014
-# Date Revised: Saturday November 15, 2014
+# Date Revised: Sunday December 21, 2014
 #
 # Description: Bash script used to compile the GramSchmidt program
 ################################################################################
@@ -27,10 +27,6 @@ build_man ()
     echo ""
     echo -e "\033[1mSYNOPSIS\033[0m"
     echo -e "\tGramSchmidt.sh [OPTIONS] [TAG]"
-    echo ""
-    echo -e "\033[1mOPTIONS\033[0m"
-    echo -e "\tsetenv"
-    echo -e "\t    Set the environment for the GramSchmidt project."
     echo ""
     echo -e "\tconfigure"
     echo -en "\t    Prepare the project directories for compilation of the "
@@ -69,11 +65,10 @@ build_man ()
 #
 checkInputs ()
 {
-    goodInputs=true
     if [ ${noOfArgs} -gt $2 ]; then
         echo "Incorrect number of arguments for '$1'"
         echo "Run this script without any inputs for appropriate use."
-        goodInputs=false
+        exit 1
     fi
 }
 
@@ -82,12 +77,11 @@ checkInputs ()
 #
 checkProjEnv ()
 {
-    projEnvSet=true
     if [ -z "${PROJ_ROOT_PATH}" ] ||
        [ -z "${STD_MAKE_PATH}" ]; then
         echo "Environment is not yet set"
-        echo "Use the 'setenv' argument to set the environment"
-        projEnvSet=false
+        echo "Source the setenv.sh script to set the environment"
+        exit 1
     fi
 }
 
@@ -97,64 +91,18 @@ checkProjEnv ()
 noOfArgs=$#
 if [ $# -eq 0 ]; then
     build_man
-    return 1
+    exit 1
 fi
-
-#
-# Set the necessary environment variables
-#
-if [ "$1" = "setenv" ]; then
-    #
-    # Ensure the inputs are correct and the environment variables are set
-    #
-    checkInputs $1 1
-    if [ ${goodInputs} = false ]; then
-        return 1
-    fi
-
-    echo "Setting environment"
-
-    #
-    # Set PROJ_ROOT_PATH as the project root directory and STD_MAKE_PATH as the
-    # as directory where the standard files used by 'make' reside. Also set
-    # other needed environment variables.
-    #
-    export PROJ_ROOT_PATH=$(cd `dirname ${BASH_SOURCE[0]}`/.. && pwd)
-    export STD_MAKE_PATH=Build/StdMake
-
-    export BUILD_LOG_PATH=${PROJ_ROOT_PATH}/Build/Logs
-    export DOC_PATH=${PROJ_ROOT_PATH}/doc
-    export RELEASE_PATH=${PROJ_ROOT_PATH}/release
-
-    #
-    # Link the repository git hooks to the .git/hooks directory, if it exists
-    #
-    if [ -d ${PROJ_ROOT_PATH}/.git ]; then
-        echo -en "\n  Linking git hooks to the .git/hooks directory\n"
-        ${PROJ_ROOT_PATH}/Tools/Scripts/LinkGitHooks.sh
-    fi
-
-    #
-    # Let the user know what PROJ_ROOT_PATH is defined as
-    #
-    echo "  PROJ_ROOT_PATH: ${PROJ_ROOT_PATH}"
 
 #
 # Configure the source code for compilation
 #
-elif [ "$1" = "configure" ]; then
+if [ "$1" = "configure" ]; then
     #
     # Ensure the inputs are correct and the environment variables are set
     #
     checkInputs $1 1
-    if [ ${goodInputs} = false ]; then
-        return 1
-    fi
-
     checkProjEnv
-    if [ ${projEnvSet} = false ]; then
-        return 1
-    fi
 
     #
     # Create the build logs directory if it does not exist and configure the
@@ -176,14 +124,7 @@ elif [ "$1" = "build" ]; then
     # Ensure the inputs are correct and the environment variables are set
     #
     checkInputs $1 1
-    if [ ${goodInputs} = false ]; then
-        return 1
-    fi
-
     checkProjEnv
-    if [ ${projEnvSet} = false ]; then
-        return 1
-    fi
 
     #
     # Create the build logs directory if it does not exist
@@ -212,14 +153,7 @@ elif [ "$1" = "distclean" ]; then
     # Ensure the inputs are correct and the environment variables are set
     #
     checkInputs $1 1
-    if [ ${goodInputs} = false ]; then
-        return 1
-    fi
-
     checkProjEnv
-    if [ ${projEnvSet} = false ]; then
-        return 1
-    fi
 
     #
     # Remove directories created by this script and have 'make' remove
@@ -240,14 +174,7 @@ elif [ "$1" = "release" ]; then
     # Ensure the inputs are correct and the environment variables are set
     #
     checkInputs $1 2
-    if [ ${goodInputs} = false ]; then
-        return 1
-    fi
-
     checkProjEnv
-    if [ ${projEnvSet} = false ]; then
-        return 1
-    fi
 
     #
     # Check the tag name argument to ensure it is a valid annotated tag name
@@ -256,12 +183,12 @@ elif [ "$1" = "release" ]; then
         echo "ERROR"
         echo "${PROJ_ROOT_PATH}/.git directory not found."
         echo "Use the 'tar' command instead to generate an archive."
-        return 1
+        exit 1
     fi
 
     if [ -z "$2" ]; then
         echo -e "Tag name not specified."
-        tagName=`git describe`
+        tagName=`git describe --abbrev=0`
         echo -n "Use the most current annotated tag ${tagName}? (y/n): "
         read useTagAns
 
@@ -270,12 +197,12 @@ elif [ "$1" = "release" ]; then
                 ;;
             n | no)
                 echo -e "Aborting release"
-                return 1
+                exit 1
                 ;;
             *)
                 echo -e "ERROR: Unknown input \"${useTagAns}\""
                 echo "Aborting release"
-                return 1
+                exit 1
                 ;;
         esac
 
@@ -298,7 +225,7 @@ elif [ "$1" = "release" ]; then
     if [ ${#remoteURL[@]} -eq 0 ]; then
         echo "ERROR: No remote repository found. A remote repository must exist"
         echo "to validate release versions."
-        return 1
+        exit 1
 
     elif [ ${#remoteURL[@]} -gt 1 ]; then
         echo -e "\nRemote Repositories"
@@ -319,7 +246,7 @@ elif [ "$1" = "release" ]; then
            [ ${URLnum} -lt 1 ] || \
            [ ${URLnum} -gt ${#remoteURL[@]} ]; then
             echo "ERROR: Input ${URLnum} is not a valid option"
-            return 1
+            exit 1
         else
             repoURL=${remoteURL[$((${URLnum}-1))]}
         fi
@@ -334,7 +261,7 @@ elif [ "$1" = "release" ]; then
     localTagHash=`git show-ref --tags ${tagName} | awk '{print $1}'`
     if [ -z ${localTagHash} ]; then
         echo "ERROR: Tag ${tagName} does not exist in the local repository."
-        return 1
+        exit 1
     fi
 
     echo -e "Accessing annotated tags from repository: ${repoURL}\n"
@@ -348,14 +275,14 @@ elif [ "$1" = "release" ]; then
     if [ "${rmtTagHash}" = "${rmtCmtHash}" ]; then
         echo "ERROR: Specified tag ${tagName} is not an annotated tag in the"
         echo "       remote repository."
-        return 1
+        exit 1
     fi
 
     if [ "${localTagHash}" != "${rmtTagHash}" ]; then
         echo "ERROR: Local tag ${tagName} SHA-1 hash does not match the"
         echo "       repository tag ${tagName} SHA-1 hash. Either update the"
         echo "       remote or local repository or specify another tag."
-        return 1
+        exit 1
     fi
 
     localCmtHash=`git log --format=%H -1 ${localTagHash}`
@@ -363,14 +290,14 @@ elif [ "$1" = "release" ]; then
     if [ "${localTagHash}" = "${localCmtHash}" ]; then
         echo "ERROR: Specified tag ${tagName} is not an annotated tag in the"
         echo "       local repository."
-        return 1
+        exit 1
     fi
 
     if [ "${rmtCmtHash}" != "${localCmtHash}" ]; then
         echo "ERROR: Specified tag ${tagName} points to different commit"
         echo "       snapshots in remote and local repositories. Either update"
         echo "       the remote or local repository or specify another tag."
-        return 1
+        exit 1
     fi
 
     #
@@ -378,6 +305,7 @@ elif [ "$1" = "release" ]; then
     #
     tagDir=`echo ${tagName} | sed "s|\.|_|g"`
     relDir="${RELEASE_PATH}/${tagDir}"
+    currDir=`pwd`
     archPrefix="`basename ${PROJ_ROOT_PATH}`/"
     archName="`basename ${PROJ_ROOT_PATH}`_${tagDir}.tar.gz"
 
@@ -385,8 +313,10 @@ elif [ "$1" = "release" ]; then
         mkdir -p ${relDir}
     fi
 
-    git archive ${localTagHash} --prefix="${archPrefix}" | \
+    cd ${PROJ_ROOT_PATH}
+    git archive ${localTagHash} --prefix="${archPrefix}" ${PROJ_ROOT_PATH} | \
         gzip > "${relDir}/${archName}"
+    cd ${currDir}
 
     echo "Generated release tarball:"
     echo "${relDir}/${archName}"
@@ -397,7 +327,7 @@ else
     #
     echo "Invalid argument: $1"
     echo "Run this script without any inputs for appropriate use."
-    return 1
+    exit 1
 fi
 
 # End GramSchmidt.sh
