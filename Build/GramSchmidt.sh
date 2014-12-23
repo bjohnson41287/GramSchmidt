@@ -5,7 +5,7 @@
 # Author: Benjamin Johnson
 #
 # Date Created: Monday September 29, 2014
-# Date Revised: Saturday November 15, 2014
+# Date Revised: Monday December 22, 2014
 #
 # Description: Bash script used to compile the GramSchmidt program
 ################################################################################
@@ -165,8 +165,8 @@ elif [ "$1" = "configure" ]; then
     fi
 
     echo "Configuring GramSchmidt"
-    make -C ${PROJ_ROOT_PATH} configure > ${BUILD_LOG_PATH}/${configOutLog} \
-        |& tee > ${BUILD_LOG_PATH}/${configErrLog}
+    (make -C ${PROJ_ROOT_PATH} configure > ${BUILD_LOG_PATH}/${configOutLog}) \
+        |& tee ${BUILD_LOG_PATH}/${configErrLog}
 
 #
 # Build the project
@@ -197,12 +197,12 @@ elif [ "$1" = "build" ]; then
     # for make.
     #
     echo "Configuring GramSchmidt"
-    make -C ${PROJ_ROOT_PATH} configure > ${BUILD_LOG_PATH}/${configOutLog} \
-        |& tee > ${BUILD_LOG_PATH}/${configErrLog}
+    (make -C ${PROJ_ROOT_PATH} configure > ${BUILD_LOG_PATH}/${configOutLog}) \
+        |& tee ${BUILD_LOG_PATH}/${configErrLog}
 
     echo "Building GramSchmidt"
-    make -C ${PROJ_ROOT_PATH} all > ${BUILD_LOG_PATH}/${buildOutLog} \
-        |& tee > ${BUILD_LOG_PATH}/${buildErrLog}
+    (make -C ${PROJ_ROOT_PATH} all > ${BUILD_LOG_PATH}/${buildOutLog}) \
+        |& tee ${BUILD_LOG_PATH}/${buildErrLog}
 
 #
 # Delete all files created by the configure and/or build steps
