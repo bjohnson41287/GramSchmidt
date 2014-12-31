@@ -1,10 +1,10 @@
 ################################################################################
 # File: .gitignore
 #
-# Author: Ben Johnson
+# Author: $Format:%an$
 #
 # Date Created: Saturday October 11, 2014
-# Date Revised: Monday November 17, 2014
+# Date Revised: $Format:%cd$
 #
 # Description: The .gitignore file tells git which files and/or directories to
 #              intentionally ignore in a git project.
