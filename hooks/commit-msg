@@ -5,7 +5,7 @@
 # Author: Benjamin Johnson
 #
 # Date Created: Saturday September 27, 2014
-# Date Revised: Wednesday October 15, 2014
+# Date Revised: Wednesday December 31, 2014
 #
 # Description: This shell script checks the commit messages a developer makes
 #              whenever they commit their project to git. This ensures a
@@ -13,7 +13,16 @@
 #              a violation of the format is found in the commit message. This
 #              will ensure that the commit does not complete until the commit
 #              message adheres to the format.
+#
+#              For commits resulting from merge conflicts, the user is prompted
+#              to either accept the message as is or to continue with the format
+#              checks.
 ################################################################################
+
+#
+# Store the absolute path of the project root directory
+#
+PROJ_ROOT_PATH=`git rev-parse --show-toplevel`
 
 #
 # Define needed variables
@@ -21,6 +30,8 @@
 cmtTempFile="cmtMsg.tmp"
 line1MaxChars=72
 maxLineChars=80
+
+mergeRegExp="^Merge branch '.+'$"
 
 fileHdrRegExp="File:[[:space:]]*([[:alnum:]_-/.]+[^/.])"
 fileHdrLineRegExp="^[[:space:]]*${fileHdrRegExp}[[:space:]]*$"
@@ -304,27 +315,27 @@ if [ $# -ne 1 ]; then
     echo "       the commit message or the -h or --help option to display the"
     echo "       expected commit message format."
     exit 1
-else
-    case "$1" in
-        -h | --help)
-            #
-            # Display the commit message format and exit
-            #
-            cmtMsg_fmt
-            exit 1
-            ;;
-        *)
-            #
-            # Ensure the input file exists
-            #
-            cmtFile="$1"
-            if [ ! -f "${cmtFile}" ]; then
-                echo "ERROR: The file ${cmtFile} does not exist."
-                exit 1
-            fi
-            ;;
-    esac
 fi
+
+case "$1" in
+    -h | --help)
+        #
+        # Display the commit message format and exit
+        #
+        cmtMsg_fmt
+        exit 1
+        ;;
+    *)
+        #
+        # Ensure the input file exists
+        #
+        cmtFile="$1"
+        if [ ! -f "${cmtFile}" ]; then
+            echo "ERROR: The file ${cmtFile} does not exist."
+            exit 1
+        fi
+        ;;
+esac
 
 #
 # Use `git diff --cached --name-only` to store the files being commited into an
@@ -355,6 +366,33 @@ cmtLines="${#msgLineNums[@]}"
 if [ "${cmtLines}" -ne "${#msgLines[@]}" ]; then
     echo "ERROR: Amount of line numbers from the commit message file does not"
     echo "       match the number of extracted commit message lines."
+    exit 1
+fi
+
+#
+# If the commit message is for a merge conflict, prompt the user if they want
+# to continue with the format check or accept the message as is
+#
+if [[ "${msgLines[0]}" =~ ${mergeRegExp} ]] ||
+   [ -f ${PROJ_ROOT_PATH}/.git/MERGE_HEAD ]; then
+    echo -en "Merge commit detected. Skip commit message format check (y/n)? "
+
+    read skipMergeCmt
+
+    case "${skipMergeCmt}" in
+        y | yes)
+            echo -en "Skipping merge commit message format check\n"
+            exit 0
+            ;;
+        n | no)
+            echo -en "Continuing with format check\n"
+            ;;
+        *)
+            echo -en "Unknown input \"${skipMergeCmt}\". "
+            echo -en "Aborting commit.\n"
+            exit 1
+            ;;
+    esac
 fi
 
 #
