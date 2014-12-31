@@ -375,6 +375,7 @@ fi
 #
 if [[ "${msgLines[0]}" =~ ${mergeRegExp} ]] ||
    [ -f ${PROJ_ROOT_PATH}/.git/MERGE_HEAD ]; then
+    exec < /dev/tty
     echo -en "Merge commit detected. Skip commit message format check (y/n)? "
 
     read skipMergeCmt
