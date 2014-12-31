@@ -10,7 +10,7 @@
 **
 ** @author  $Format:%an$
 **
-** @date    $Format:%cd$
+** @date    $Format:%cD$
 **
 ** @ifnot (DATE_CREATED) Date Created: Monday October 20, 2014 @endif
 **
@@ -49,10 +49,8 @@
 /*-------------------------------[Begin Code]---------------------------------*/
 /**
 ********************************************************************************
-** FUNCTION DEFINITIONS GO HERE!!!!
-**
-**
-**
+** @details Vector class constructor
+** @param   n   Number of vector elements
 ********************************************************************************
 */
 Vector::Vector(unsigned int n)
