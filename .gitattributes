@@ -1,10 +1,10 @@
 ################################################################################
 # File: .gitattributes
 #
-# Author: Ben Johnson
+# Author: $Format:%an$
 #
 # Date Created: Saturday October 18, 2014
-# Date Revised: Friday November 14, 2014
+# Date Revised: $Format:%cD$
 #
 # Description: The .gitattributes file defines actions taken for particular
 #              files.

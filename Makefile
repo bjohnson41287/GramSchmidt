@@ -1,10 +1,10 @@
 ################################################################################
 # File: Makefile
 #
-# Author: Ben Johnson
+# Author: $Format:%an$
 #
 # Date Created: Monday September 29, 2014
-# Date Revised: Sunday October 19, 2014
+# Date Revised: $Format:%cD$
 #
 # Description: A general Makefile that allows make to descend into the
 #              directories from the current directory and continue execution if
