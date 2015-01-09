@@ -2,10 +2,10 @@
 ################################################################################
 # File: prepare-commit-msg
 #
-# Author: Benjamin Johnson
+# Author: $Format:%an$
 #
+# Date: $Format:%cD$
 # Date Created: Thursday May 29, 2014
-# Date Revised: Wednesday October 15, 2014
 #
 # Description: Before the editor is displayed to the user, this hook sets up a              each staged file name to ensure it conforms to standard naming
 #              commit message using a template file that is either passed in as
@@ -153,7 +153,7 @@ case "$2" in
         echo ""
         echo "If this is the user's intent, enter \"n\" or \"no\" at the prompt"
         echo "and rerun the commit by running one of the above commands."
-        echo "Verify by entering \"y\" or \"yes\"."
+        echo "Verify the command by entering \"y\" or \"yes\"."
         echo ""
         echo -en "\033[1mProceed with a one line commit message (y/n)?\033[0m "
 

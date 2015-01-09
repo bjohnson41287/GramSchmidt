@@ -2,10 +2,10 @@
 ################################################################################
 # File: GramSchmidt.sh
 #
-# Author: Benjamin Johnson
+# Author: $Format:%an$
 #
+# Date: $Format:%cD$
 # Date Created: Monday September 29, 2014
-# Date Revised: Monday December 22, 2014
 #
 # Description: Bash script used to compile the GramSchmidt program
 ################################################################################

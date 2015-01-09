@@ -1,10 +1,10 @@
 ################################################################################
 # File: Makefile
 #
-# Author: Benjamin Johnson
+# Author: $Format:%an$
 #
+# Date: $Format:%cD$
 # Date Created: Monday September 29, 2014
-# Date Revised: Saturday October 25, 2014
 #
 # Description: GramSchmidt source directory Makefile to compile the GramSchmidt
 #              application

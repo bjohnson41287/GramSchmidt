@@ -1,10 +1,10 @@
 ################################################################################
 # File: Makefile.app
 #
-# Author: Benjamin Johnson
+# Author: $Format:%an$
 #
+# Date: $Format:%cD$
 # Date Created: Monday September 29, 2014
-# Date Revised: Tuesday October 28, 2014
 #
 # Description: Generic Makefile for application code
 ################################################################################

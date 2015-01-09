@@ -12,9 +12,7 @@
 **
 ** @date    $Format:%cD$
 **
-** @ifnot (DATE_CREATED) Date Created: Monday October 27, 2014 @endif
-**
-** @copyright Copyright 2014 by Benjamin Johnson\n
+** @copyright Copyright 2014 by Ben Johnson\n
 **            You can freely redistribute and/or modify the contents of this
 **            file under the terms of the GNU General Public License version 3,
 **            or any later versions.
@@ -23,6 +21,8 @@
 
 /*
 ********************************************************************************
+**  Macros.hh
+**
 **  (C) Copyright 2014 by Ben Johnson
 **
 **  This is free software: you can redistribute it and/or modify it under the

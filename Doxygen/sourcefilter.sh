@@ -4,8 +4,8 @@
 #
 # Author: $Format:%an$
 #
+# Date: $Format:%cD$
 # Date Created: Sunday January 4, 2014
-# Date Revised: $Format:%cD$
 #
 # Description: Doxygen source code filter to perform pattern substitution for
 #              the following Git archive patterns:

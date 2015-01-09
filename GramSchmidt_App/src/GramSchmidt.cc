@@ -8,11 +8,11 @@
 **          vectors, given a non-orthogonal set of n vectors that span the
 **          n-dimensional space.
 **
-** @author  Ben Johnson
+** @author  $Format:%an$
 **
-** @date    Sunday October 19, 2014
+** @date    $Format:%cD$
 **
-** @copyright Copyright 2014 by Benjamin Johnson\n
+** @copyright Copyright 2014 by Ben Johnson\n
 **            You can freely redistribute and/or modify the contents of this
 **            file under the terms of the GNU General Public License version 3,
 **            or any later versions.
@@ -21,6 +21,8 @@
 
 /*
 ********************************************************************************
+**  GramSchmidt.cc
+**
 **  (C) Copyright 2014 by Ben Johnson
 **
 **  GramSchmidt is free software: you can redistribute it and/or modify it under
@@ -48,8 +50,7 @@
 /*-------------------------------[Begin Code]---------------------------------*/
 /**
 ********************************************************************************
-** @details This is the main() function for the start of the GramSchmidt C++
-**          program.
+** @details This is the entry point for the GramSchmidt C++ program.
 ** @param   argc    Number of program input arguments
 ** @param   argv[]  Array of char pointers to the input arguments
 ** @return  int
