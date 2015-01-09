@@ -13,20 +13,25 @@
 #                  $Format:%cD$ -> Most recent commit date
 #
 #              This will allow the user to view the complete Doxygen output
-#              without having the first generate a code release using the
+#              without having to first generate a code release using the
 #              'git archive' command. Only the release version number will not
 #              be output on the main page, since this is selected by the user
 #              when generating a code release.
 #
 #              Doxygen calls this file as
-#                  <filter> <input-file>
+#                  sourcefilter.sh <input-file>
 ################################################################################
 
 #
 # Store the most recent author name commit date of the filtered file
 #
-author=`git log -1 --format=%an $1`
-cmtDate=`git log -1 --format=%cD $1`
+if [ -f ~/.gitconfig ]; then
+    author=`git config user.name`
+else
+    author=${USER}
+fi
+
+cmtDate=`date`
 
 #
 # Perform pattern substitution for the most recent author name and commit date
