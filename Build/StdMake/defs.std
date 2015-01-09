@@ -1,12 +1,10 @@
 ################################################################################
 # File: defs.std
 #
-# Author: Benjamin Johnson
+# Author: $Format:%an$
 #
-# Version: 1.0
-#
-# Date Created: Sunday September 28, 2014
-# Date Revised: Wednesday October 29, 2014
+# Date: $Format:%cD$
+# Date Created: Monday September 29, 2014
 #
 # Description: Standard definitions for use with Makefiles
 ################################################################################

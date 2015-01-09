@@ -1,10 +1,10 @@
 ################################################################################
 # File: Makefile
 #
-# Author: Benjamin Johnson
+# Author: $Format:%an$
 #
+# Date: $Format:%cD$
 # Date Created: Saturday October 25, 2014
-# Date Revised: Monday October 27, 2014
 #
 # Description: Makefile to link header files to the top level header directory
 ################################################################################

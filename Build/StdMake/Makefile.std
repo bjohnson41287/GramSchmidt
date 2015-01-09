@@ -1,12 +1,10 @@
 ################################################################################
 # File: Makefile.std
 #
-# Author: Benjamin Johnson
+# Author: $Format:%an$
 #
-# Version: 1.0
-#
-# Date Created:  Sunday September 28, 2014
-# Date Revised: N/A
+# Date: $Format:%cD$
+# Date Created: Sunday September 28, 2014
 #
 # Description: Recursively call make in all directories from the current
 #              directory. This allows make to descend the directory structure

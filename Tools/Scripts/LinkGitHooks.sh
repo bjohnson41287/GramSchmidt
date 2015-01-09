@@ -2,10 +2,10 @@
 ################################################################################
 # File: LinkGitHooks.sh
 #
-# Author: Benjamin Johnson
+# Author: $Format:%an$
 #
-# Date Created: Monday, October 13, 2014
-# Date Revised: Wednesday, October 15, 2014
+# Date: $Format:%cD$
+# Date Created: Monday October 13, 2014
 #
 # Description: Link the repository git hooks to the .git/hooks directory for
 #              continued use.

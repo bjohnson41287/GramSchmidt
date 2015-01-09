@@ -2,10 +2,10 @@
 ################################################################################
 # File: pre-commit
 #
-# Author: Benjamin Johnson
+# Author: $Format:%an$
 #
+# Date: $Format:%cD$
 # Date Created: Wednesday October 15, 2014
-# Date Revised: N/A
 #
 # Description: This hooks is executed just after a "git commit" command is run
 #              and it inspects the staged file names to ensure they follow

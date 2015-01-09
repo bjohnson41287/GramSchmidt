@@ -2,10 +2,10 @@
 ################################################################################
 # File: prepare-commit-msg
 #
-# Author: Benjamin Johnson
+# Author: $Format:%an$
 #
+# Date: $Format:%cD$
 # Date Created: Thursday May 29, 2014
-# Date Revised: Wednesday October 15, 2014
 #
 # Description: Before the editor is displayed to the user, this hook sets up a              each staged file name to ensure it conforms to standard naming
 #              commit message using a template file that is either passed in as

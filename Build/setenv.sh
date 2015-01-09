@@ -2,10 +2,10 @@
 ################################################################################
 # File: setenv.sh
 #
-# Author: Benjamin Johnson
+# Author: $Format:%an$
 #
+# Date: $Format:%cD$
 # Date Created: Sunday December 21, 2014
-# Date Revised: N/A
 #
 # Description: Sourced bash script for setting project environment variables and
 #              linking git hooks to the .git/hooks directory
