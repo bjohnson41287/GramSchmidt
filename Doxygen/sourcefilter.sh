@@ -9,8 +9,8 @@
 #
 # Description: Doxygen source code filter to perform pattern substitution for
 #              the following Git archive patterns:
-#                  $Format:%an$ -> Most recent author name
-#                  $Format:%cD$ -> Most recent commit date
+#                  Format:%an -> Most recent author name
+#                  Format:%cD -> Most recent commit date
 #
 #              This will allow the user to view the complete Doxygen output
 #              without having to first generate a code release using the
