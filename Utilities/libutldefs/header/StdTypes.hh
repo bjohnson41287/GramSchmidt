@@ -42,8 +42,6 @@
 #define _STD_TYPES_HH_
 
 /*------------------------------[Include Files]-------------------------------*/
-#include <stdio.h>
-
 #include "Macros.hh"
 
 /*-------------------------------[Begin Code]---------------------------------*/
@@ -88,14 +86,32 @@
 ** Type define each standard C++ variable type for a 32-bit processor
 */
 #ifdef CPU_32_BIT
-    typedef unsigned char      UINT8;   /**< 8-bit unsigned variable for 32-bit
+    typedef unsigned char          UINT8;   /**< 8-bit unsigned variable for
+                                            **   32-bit CPU */
+    typedef unsigned short int     UINT16;  /**< 16-bit unsigned variable for
+                                            **   32-bit CPU */
+    typedef unsigned int           UINT32;  /**< 32-bit unsigned variable for
+                                            **   32-bit CPU */
+    typedef unsigned long long int UINT64;  /**< 64-bit unsigned variable for
+                                            **   32-bit CPU */
+
+    typedef signed char          INT8;  /**< 8-bit signed variable for 32-bit
                                         **   CPU */
-    //printf("I'm a 32-bit computer!\n");
+    typedef signed short int     INT16; /**< 16-bit signed variable for 32-bit
+                                        **   CPU */
+    typedef signed int           INT32; /**< 32-bit signed variable for 32-bit
+                                        **   CPU */
+    typedef signed long long int INT64; /**< 64-bit signed variable for 32-bit
+                                        **   CPU */
 #endif
 
 /*
-** Define the true and false boolean keywords if they are not defined
+** Define the boolean keyword, along with true and false, if they are not
+** already defined
 */
+#ifndef __cplusplus
+typedef UINT32 bool;    /**< Boolean data type, if not defined */
+
 #ifndef true
 #define true 1
 #endif
@@ -104,24 +120,14 @@
 #define false 0
 #endif
 
+#endif
+
 #ifndef NULL
 #define NULL 0
 #endif
 
 /*
-** TALK ABOUT WHY FLOATING POINT VARIABLES ARE NOT TYPE DEFINED!!!! -> DUE TO IEEE STANDARD
+** Floating point variables are defined according to the IEEE 754 standard and
+** do not need to be defined.
 */
-
-
-
-
-
-
-
-
-
-
-
-
-
 #endif
