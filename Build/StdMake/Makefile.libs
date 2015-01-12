@@ -84,8 +84,6 @@ ifneq ($(LIB_NAME),)
 	fi
 endif
 
-
-
 $(LOCAL_LIB_DIR)/$(LIB_BASE).a: $(OBJS)
 ifneq ($(OBJS),)
 	@if [ ! -d $(LOCAL_LIB_DIR) ]; then \
