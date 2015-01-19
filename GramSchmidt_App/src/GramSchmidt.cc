@@ -58,15 +58,34 @@
 */
 int main(int argc, char* argv[])
 {
-    printf("This is the GramSchmidt program.\n");
-#if defined(CPU_64_BIT)
-    printf("64-bit CPU\n");
-#elif defined(CPU_32_BIT)
-    printf("32-bit CPU\n");
+    /*
+    ** Define needed variables
+    */
+    UINT32 noOfVecs = 3;
+    UINT32 ndims = 4;
+    double vec1[ndims];
+
+    Vector vec(ndims);
+
+    /*
+    ** Instantiate each vector in the set and define their values
+    */
+    vec1[0] = 1;
+    vec1[1] = 2;
+    vec1[2] = 3;
+    vec1[3] = 4;
+
+#if 0
+    vec[1][0] = -1;
+    vec[1][1] = 2;
+    vec[1][2] = 4;
+    vec[1][3] = 1;
+
+    vec[2][0] = 2;
+    vec[2][1] = 0;
+    vec[2][2] = 5;
+    vec[2][3] = -7;
 #endif
-    printf("Size of char: %ld\n",sizeof(char));
-    printf("Size of short int: %ld\n",sizeof(short));
-    printf("Size of int: %ld\n",sizeof(int));
-    printf("Size of long: %ld\n",sizeof(long));
-    printf("Size of long long: %ld\n",sizeof(long long));
+
+    return 0;
 }

@@ -56,9 +56,9 @@
 class Vector
 {
     private:
-        unsigned int ndims;   /* Number of dimensions (elements) in the vector */
+        UINT32 ndims;   /* Number of dimensions (elements) in the vector */
 
-        double* pVec;         /* Pointer to the vector elements */
+        double* pVec;   /* Pointer to the vector elements */
 
     public:
 
@@ -70,7 +70,7 @@ class Vector
         /*
         ** Constructor (one parameter)
         */
-        Vector(unsigned int n);
+        Vector(UINT32 n);
 
         /**
         ** @brief Default copy constructor (disabled)
@@ -95,7 +95,12 @@ class Vector
         /**
         ** @brief TODO: MOVE DOCUMENTATION Default destructor (disabled)
         */
-        ~Vector();
+        ~Vector() = default;
+
+        /*
+        ** Operators
+        */
+        Vector& operator=(const double*);
 
 
 };

@@ -52,8 +52,9 @@
 ** @param   n   Number of vector elements
 ********************************************************************************
 */
-Vector::Vector(unsigned int n)
+Vector::Vector(UINT32 n)
 {
+    printf("How many times is this called?\n");
     ndims = n;
 
     /*
@@ -76,5 +77,20 @@ Vector::Vector(unsigned int n)
     }
 }
 
+/**
+********************************************************************************
+** @details Assign an array of doubles to the Vector object elements
+** @param   pVals   Pointer to vector element values
+********************************************************************************
+*/
+Vector& Vector::operator=(const double* pVals)
+{
+    for (UINT32 i = 0; i < ndims; i++)
+    {
+        pVec[i] = pVals[i];
+        printf("Vector value: %f\n",pVec[i]);
+    }
 
+    return *this;
+}
 

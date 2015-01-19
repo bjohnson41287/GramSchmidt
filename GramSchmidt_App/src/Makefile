@@ -45,4 +45,13 @@ $(DEST_EXEC_PATH)/$(APP_NAME): $(OBJS) $(DEP_LIBS)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJS) \
 	$(patsubst %,-L%,$(INC_LIB_DIRS)) $(patsubst lib%,-l%,$(DEP_LIBS))
 
+#
+# Local targets
+#
+.PHONY: local_all local_configure
+
+local_all: $(DEST_EXEC_PATH) $(DEST_EXEC_PATH)/$(APP_NAME)
+
+local_configure: $(DEST_HEADER_PATH)
+
 # End Makefile
