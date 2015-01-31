@@ -10,7 +10,7 @@
 **
 ** @date    $Format:%cD$
 **
-** @copyright Copyright 2014 by Ben Johnson\n
+** @copyright Copyright 2015 by Ben Johnson\n
 **            You can freely redistribute and/or modify the contents of this
 **            file under the terms of the GNU General Public License version 3,
 **            or any later versions.
@@ -21,7 +21,7 @@
 ********************************************************************************
 **  Vector.hh
 **
-**  (C) Copyright 2014 by Ben Johnson
+**  (C) Copyright 2015 by Ben Johnson
 **
 **  This is free software: you can redistribute it and/or modify it under the
 **  terms of the GNU General Public License as published by the Free Software
@@ -62,54 +62,79 @@ class Vector
 
     public:
 
-        /**
-        ** @brief Default constructor (disabled)
+        /*
+        ** Default constructor
         */
-        Vector() = delete;
+        Vector();
 
         /*
         ** Constructor (one parameter)
         */
-        Vector(UINT32 n);
+        Vector(const UINT32& n);
 
-        /**
-        ** @brief Default copy constructor (disabled)
+        /*
+        ** Constructor (two parameters)
         */
-        Vector(const Vector&) = delete;
+        Vector(const double* vals, const UINT32& n);
 
-        /**
-        ** @brief Default copy assignment (disabled)
+        /*
+        ** Default copy constructor
         */
-        Vector& operator=(const Vector&) = delete;
+        Vector(const Vector& vec);
 
-        /**
-        ** @brief TODO: MOVE DOCUMENTATION Default move constructor
+        /*
+        ** Default copy assignment
         */
-        Vector(Vector&&) = default;
+        Vector& operator=(const Vector& rhs);
 
-        /**
-        ** @brief TODO: MOVE DOCUMENTATION Default move assignment
+        /*
+        ** Default move constructor
         */
-        Vector& operator=(Vector&&) = default;
+        Vector(Vector&&);
+
+        /*
+        ** Default move assignment
+        */
+        Vector& operator=(Vector&& rhs);
 
         /**
-        ** @brief TODO: MOVE DOCUMENTATION Default destructor (disabled)
+        ** @brief Default destructor
         */
         ~Vector() = default;
 
         /*
+        ** Check the vector dimension to ensure it is greater than zero
+        */
+        void checkSize(const UINT32& n);
+
+        /*
+        ** Check the sizes of both vector objects before an operation takes
+        ** place with an overloaded operator
+        */
+        void checkOperatorSize(const UINT32& n1, const UINT32& n2) const;
+
+        /*
         ** Operators
         */
-        Vector& operator=(const double*);
+        Vector& operator+=(const Vector& rhs);
+        const Vector operator+(const Vector& rhs) const;
+        double operator*(const Vector& rhs) const;
+        double& operator[](const UINT32 i) const;
+        double& operator[](const INT32 i) const;
 
+        /*
+        ** Access methods
+        */
 
+        /*
+        ** Set the size and elements of the vector from a column array
+        */
+        void setVector(const double* vals, const UINT32& n);
+
+        /*
+        ** Get the vector dimension
+        */
+        const UINT32& getSize(void) const;
 };
-
-
-
-
-
-
-
 
 #endif

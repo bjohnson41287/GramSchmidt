@@ -12,7 +12,7 @@
 **
 ** @date    $Format:%cD$
 **
-** @copyright Copyright 2014 by Ben Johnson\n
+** @copyright Copyright 2015 by Ben Johnson\n
 **            You can freely redistribute and/or modify the contents of this
 **            file under the terms of the GNU General Public License version 3,
 **            or any later versions.
@@ -23,7 +23,7 @@
 ********************************************************************************
 **  GramSchmidt.cc
 **
-**  (C) Copyright 2014 by Ben Johnson
+**  (C) Copyright 2015 by Ben Johnson
 **
 **  GramSchmidt is free software: you can redistribute it and/or modify it under
 **  the terms of the GNU General Public License as published by the Free
@@ -63,29 +63,37 @@ int main(int argc, char* argv[])
     */
     UINT32 noOfVecs = 3;
     UINT32 ndims = 4;
-    double vec1[ndims];
+    double vecSet[noOfVecs][ndims];
 
-    Vector vec(ndims);
+    Vector vec[noOfVecs];
 
     /*
     ** Instantiate each vector in the set and define their values
     */
-    vec1[0] = 1;
-    vec1[1] = 2;
-    vec1[2] = 3;
-    vec1[3] = 4;
+    vecSet[0][0] = 1;
+    vecSet[0][1] = 2;
+    vecSet[0][2] = 3;
+    vecSet[0][3] = 4;
 
-#if 0
-    vec[1][0] = -1;
-    vec[1][1] = 2;
-    vec[1][2] = 4;
-    vec[1][3] = 1;
+    vecSet[1][0] = -1;
+    vecSet[1][1] = 2;
+    vecSet[1][2] = 4;
+    vecSet[1][3] = 1;
 
-    vec[2][0] = 2;
-    vec[2][1] = 0;
-    vec[2][2] = 5;
-    vec[2][3] = -7;
-#endif
+    vecSet[2][0] = 2;
+    vecSet[2][1] = 0;
+    vecSet[2][2] = 5;
+    vecSet[2][3] = -7;
+
+    for (UINT32 i = 0; i < noOfVecs; i++)
+    {
+        vec[i].setVector(vecSet[i],ndims);
+    }
+
+    Vector sumVec(ndims);
+    sumVec = (vec[0] + vec[2]);
+
+    // INSTANTIATE A MATRIX OBJECT FOR THE Grammian MATRIX!!!!
 
     return 0;
 }
