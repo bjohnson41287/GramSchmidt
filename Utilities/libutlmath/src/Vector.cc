@@ -88,6 +88,7 @@ Vector::Vector(const UINT32& n)
 */
 Vector::Vector(const double* vals, const UINT32& n)
 {
+    ndims = 0;
     pVec = NULL;
     setVector(vals,n);
 }
@@ -96,7 +97,6 @@ Vector::Vector(const double* vals, const UINT32& n)
 ********************************************************************************
 ** @details Vector copy constructor
 ** @param   vec Vector object
-** @return  Calling object
 ********************************************************************************
 */
 Vector::Vector(const Vector& vec)
@@ -114,7 +114,6 @@ Vector::Vector(const Vector& vec)
 ********************************************************************************
 ** @details Vector move constructor
 ** @param   vec Vector object rvalue reference
-** @return  Calling object
 ********************************************************************************
 */
 Vector::Vector(Vector&& vec)
@@ -137,7 +136,7 @@ void Vector::checkSize(const UINT32& n)
     if (n < 1)
     {
         printf("Error - %s\n"
-               "        Vector dimension (%d) is less than 1\n",
+               "        Vector dimension (%u) is less than 1\n",
                __PRETTY_FUNCTION__,n);
         exit(EXIT_FAILURE);
     }
@@ -173,7 +172,8 @@ void Vector::checkOperatorSize(const UINT32& n1, const UINT32& n2) const
 /**
 ********************************************************************************
 ** @details Vector addition compound assignment
-** @param   rhs Vector object
+** @param   rhs     Vector object
+** @return  *this   Calling object with added values
 ********************************************************************************
 */
 Vector& Vector::operator+=(const Vector& rhs)
@@ -190,7 +190,8 @@ Vector& Vector::operator+=(const Vector& rhs)
 /**
 ********************************************************************************
 ** @details Vector addition with another Vector object
-** @param   rhs Vector object
+** @param   rhs     Vector object
+** @return  result  Vector object with addition of elements
 ********************************************************************************
 */
 const Vector Vector::operator+(const Vector& rhs) const
@@ -224,7 +225,8 @@ double Vector::operator*(const Vector& rhs) const
 /**
 ********************************************************************************
 ** @details Vector element operator for UINT32 index
-** @param   i   UINT32 vector index
+** @param   i       UINT32 vector index
+** @return  pVec[i] Vector element
 ********************************************************************************
 */
 double& Vector::operator[](const UINT32 i) const
@@ -233,7 +235,7 @@ double& Vector::operator[](const UINT32 i) const
     {
         printf("Error - %s\n"
                "        Vector index out of bounds: %d\n"
-               "        Max Vector index: %d\n",
+               "        Max Vector index: %u\n",
                __PRETTY_FUNCTION__,i,ndims-1);
         exit(EXIT_FAILURE);
     }
@@ -244,7 +246,8 @@ double& Vector::operator[](const UINT32 i) const
 /**
 ********************************************************************************
 ** @details Vector element operator for INT32 index
-** @param   i   INT32 vector index
+** @param   i       INT32 vector index
+** @return  pVec[i] Vector element
 ********************************************************************************
 */
 double& Vector::operator[](const INT32 i) const
@@ -260,7 +263,7 @@ double& Vector::operator[](const INT32 i) const
     {
         printf("Error - %s\n"
                "        Vector index out of bounds: %d\n"
-               "        Max vector index: %d\n",
+               "        Max vector index: %u\n",
                __PRETTY_FUNCTION__,i,ndims-1);
         exit(EXIT_FAILURE);
     }
@@ -271,7 +274,8 @@ double& Vector::operator[](const INT32 i) const
 /**
 ********************************************************************************
 ** @details Vector copy assignment operator
-** @param   rhs Vector rvalue reference object
+** @param   rhs     Vector rvalue reference object
+** @return  *this   Calling object with rhs values
 ********************************************************************************
 */
 Vector& Vector::operator=(const Vector& rhs)
@@ -289,7 +293,8 @@ Vector& Vector::operator=(const Vector& rhs)
 /**
 ********************************************************************************
 ** @details Vector move assignment operator
-** @param   rhs Vector rvalue reference object
+** @param   rhs     Vector rvalue reference object
+** @return  *this   Calling object with temporary's values
 ********************************************************************************
 */
 Vector& Vector::operator=(Vector&& rhs)
@@ -321,7 +326,7 @@ void Vector::setVector(const double* vals, const UINT32& n)
     if (ndims != 0 && ndims != n)
     {
         printf("Error - %s\n"
-               "        Attempting to reset vector dimension from %d to %d\n",
+               "        Attempting to reset vector dimension from %u to %u\n",
                __PRETTY_FUNCTION__,ndims,n);
         exit(EXIT_FAILURE);
     }
@@ -346,7 +351,7 @@ void Vector::setVector(const double* vals, const UINT32& n)
 /**
 ********************************************************************************
 ** @details Return the vector dimension
-** @return  Vector dimension
+** @return  ndims   Vector dimension
 ********************************************************************************
 */
 const UINT32& Vector::getSize(void) const

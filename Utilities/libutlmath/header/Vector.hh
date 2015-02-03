@@ -90,7 +90,7 @@ class Vector
         /*
         ** Default move constructor
         */
-        Vector(Vector&&);
+        Vector(Vector&& vec);
 
         /*
         ** Default move assignment

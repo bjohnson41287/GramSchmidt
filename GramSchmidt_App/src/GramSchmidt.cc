@@ -46,6 +46,7 @@
 
 #include "StdTypes.hh"
 #include "Vector.hh"
+#include "Matrix.hh"
 
 /*-------------------------------[Begin Code]---------------------------------*/
 /**
@@ -64,6 +65,7 @@ int main(int argc, char* argv[])
     UINT32 noOfVecs = 3;
     UINT32 ndims = 4;
     double vecSet[noOfVecs][ndims];
+    double matArray[noOfVecs*noOfVecs];
 
     Vector vec[noOfVecs];
 
@@ -90,10 +92,20 @@ int main(int argc, char* argv[])
         vec[i].setVector(vecSet[i],ndims);
     }
 
-    Vector sumVec(ndims);
-    sumVec = (vec[0] + vec[2]);
+    /*
+    ** Calculate the Grammian matrix
+    */
+    for (UINT32 i = 0; i < noOfVecs; i++)
+    {
+        for (UINT32 j = 0; j < noOfVecs; j++)
+        {
+            matArray[i*noOfVecs + j] = vec[i]*vec[j];
+        }
+    }
 
-    // INSTANTIATE A MATRIX OBJECT FOR THE Grammian MATRIX!!!!
+    Matrix grammian(matArray,noOfVecs,noOfVecs);
+
+
 
     return 0;
 }
