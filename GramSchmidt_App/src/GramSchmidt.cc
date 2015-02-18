@@ -105,6 +105,9 @@ int main(int argc, char* argv[])
 
     Matrix grammian(matArray,noOfVecs,noOfVecs);
 
+    grammian.rank();
+
+
 
 
     return 0;

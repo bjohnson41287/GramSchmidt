@@ -60,7 +60,7 @@ class MatrixRow
     private:
         UINT32 ncols;   /* Number of elements in the matrix row */
 
-        double* pRow;   /* Pointer to the matrix row elements */
+        double* pRow;   /* Pointer to the elements in a matrix row */
 
     public:
 
@@ -72,7 +72,7 @@ class MatrixRow
         /*
         ** Constructor (two parameters)
         */
-        MatrixRow(const double* data, const UINT32& n);
+        MatrixRow(double* rowData, const UINT32& n);
 
         /**
         ** @brief Default destructor
@@ -87,7 +87,7 @@ class MatrixRow
         /*
         ** Operator
         */
-        double operator[](const UINT32& index);
+        double& operator[](const UINT32& index);
 };
 
 /**
@@ -104,13 +104,20 @@ class Matrix
     private:
         UINT32 mrows;       /* Number of rows */
         UINT32 ncols;       /* Number of columns */
+        //UINT32 rank;        /* Rank of the matrix */
 
         double* pMatrix;    /* Pointer to the matrix elements */
+
+        /*
+        ** Enumerations for use when performing matrix decompositions
+        */
+        enum {MATRIX_DECOMP_RANK,
+              MATRIX_DECOMP_DET};
 
     public:
 
         /**
-        ** @brief Default constuctor (disabled)
+        ** @brief Default constructor (disabled)
         */
         Matrix();
 
@@ -146,6 +153,21 @@ class Matrix
         ** range
         */
         void checkColInd(const UINT32& n);
+
+        /*
+        ** Calculate the rank of the matrix
+        */
+        UINT32 rank(void);
+
+        /*
+        ** Calculate the determinant of a square matrix
+        */
+        double determinant(void);
+
+        /*
+        ** Calculate the QR decomposition of the matrix
+        */
+        void QRdecomp(const INT32& decompFlag);
 
         /*
         ** Operators
