@@ -42,6 +42,7 @@
 /*------------------------------[Include Files]-------------------------------*/
 #include <cstdio>
 #include <cstdlib>
+#include <cmath>
 
 #include "Vector.hh"
 
@@ -131,7 +132,7 @@ Vector::Vector(Vector&& vec)
 ** @param   n   Vector dimension
 ********************************************************************************
 */
-void Vector::checkSize(const UINT32& n)
+void Vector::checkSize(const UINT32& n) const
 {
     if (n < 1)
     {
@@ -169,6 +170,44 @@ void Vector::checkOperatorSize(const UINT32& n1, const UINT32& n2) const
     }
 }
 
+/**
+********************************************************************************
+** @details Calculate the vector norm (magnitude)
+** @return  Norm, or magnitude, of the vector
+********************************************************************************
+*/
+double Vector::norm(void)
+{
+    return(sqrt(*this*(*this)));
+}
+
+/**
+********************************************************************************
+** @details Calculate the outer product of two vectors
+** @param   rhs Vector object
+** @return  Outer product matrix object
+********************************************************************************
+*/
+Matrix Vector::outer(const Vector& rhs) const
+{
+    UINT32 matRows;
+    UINT32 matCols;
+    double* pMatrix;
+
+    matRows = ndims;
+    matCols = rhs.ndims;
+    pMatrix = new double [matRows*matCols];
+
+    for (UINT32 i = 0; i < matRows; i++)
+    {
+        for (UINT32 j = 0; j < matCols; j++)
+        {
+            pMatrix[i*matCols + j] = pVec[i]*rhs.pVec[j];
+        }
+    }
+
+    return(Matrix(pMatrix,matRows,matCols));
+}
 /**
 ********************************************************************************
 ** @details Vector addition compound assignment
@@ -274,7 +313,7 @@ double& Vector::operator[](const INT32 i) const
 /**
 ********************************************************************************
 ** @details Vector copy assignment operator
-** @param   rhs     Vector rvalue reference object
+** @param   rhs     Vector lvalue reference object
 ** @return  *this   Calling object with rhs values
 ********************************************************************************
 */
@@ -312,6 +351,31 @@ Vector& Vector::operator=(Vector&& rhs)
     }
 
     return(*this);
+}
+
+/**
+********************************************************************************
+** @details Print the vector dimension and the elements
+********************************************************************************
+*/
+void Vector::objPrint(void) const
+{
+    checkSize(ndims);
+    printf("Vector dimension: %d\n",ndims);
+
+    if (1 == ndims)
+    {
+        printf("Vector element\n");
+    }
+    else
+    {
+        printf("Vector elements\n");
+    }
+
+    for (UINT32 i = 0; i < ndims; i++)
+    {
+        printf(" %12.3f\n",pVec[i]);
+    }
 }
 
 /**

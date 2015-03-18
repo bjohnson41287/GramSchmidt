@@ -104,7 +104,6 @@ class Matrix
     private:
         UINT32 mrows;       /* Number of rows */
         UINT32 ncols;       /* Number of columns */
-        //UINT32 rank;        /* Rank of the matrix */
 
         double* pMatrix;    /* Pointer to the matrix elements */
 
@@ -131,6 +130,26 @@ class Matrix
         */
         Matrix(const double* matArray, const UINT32& m, const UINT32& n);
 
+        /*
+        ** Default copy constructor
+        */
+        Matrix(const Matrix& rhs);
+
+        /*
+        ** Default copy assignment
+        */
+        Matrix& operator=(const Matrix& rhs);
+
+        /*
+        ** Default move constructor
+        */
+        Matrix(Matrix&& rhs);
+
+        /*
+        ** Default move assignment
+        */
+        Matrix& operator=(Matrix&& rhs);
+
         /**
         ** @brief Default destructor
         */
@@ -141,6 +160,17 @@ class Matrix
         ** are both greater than zero
         */
         void checkSize(const UINT32& m, const UINT32& n);
+
+        /*
+        ** Check two matrices to ensure they are the same size
+        */
+        void checkEqualSize(const UINT32& m1, const UINT32& n1,
+                            const UINT32& m2, const UINT32& n2);
+
+        /*
+        ** Check two matrices to ensure they are conformable for multiplication
+        */
+        void checkConformable(const UINT32& n1, const UINT32& m2);
 
         /*
         ** Check the matrix row index to ensure it is within the accessible
@@ -167,12 +197,50 @@ class Matrix
         /*
         ** Calculate the QR decomposition of the matrix
         */
-        void QRdecomp(const INT32& decompFlag);
+        void QRdecomp(INT32 decompFlag, double& det, UINT32& matRank);
 
         /*
         ** Operators
         */
+        Matrix& operator-=(const Matrix& rhs);
+        Matrix& operator*=(const double& rhs);
+        Matrix operator-(const Matrix& rhs) const;
+        Matrix operator*(const Matrix& rhs);
         MatrixRow operator[](const UINT32& rowInd);
+
+        friend Matrix operator*(const double& lhs, const Matrix& rhs);
+        friend Matrix operator*(const Matrix& lhs, const double& rhs);
+
+        /*
+        ** Print object information
+        */
+        void objPrint(void) const;
+
+        /*
+        ** Access methods
+        */
+
+        /*
+        ** Return a sub matrix from the current matrix object
+        */
+        Matrix getSubMatrix(const UINT32& startRow, const UINT32& startCol,
+                            const UINT32& endRow, const UINT32& endCol) const;
+
+        /*
+        ** Return the number of rows in the matrix
+        */
+        UINT32 getRows(void) const;
+
+        /*
+        ** Return the number of columns in the matrix
+        */
+        UINT32 getCols(void) const;
+
+        /*
+        ** Set the matrix to an identity matrix
+        */
+        void setIdentity(void);
+
 
 
 };

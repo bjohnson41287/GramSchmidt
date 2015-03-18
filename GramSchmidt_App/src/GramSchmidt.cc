@@ -64,6 +64,9 @@ int main(int argc, char* argv[])
     */
     UINT32 noOfVecs = 3;
     UINT32 ndims = 4;
+    //UINT32 gramRank;
+    double gramDet;
+
     double vecSet[noOfVecs][ndims];
     double matArray[noOfVecs*noOfVecs];
 
@@ -93,7 +96,7 @@ int main(int argc, char* argv[])
     }
 
     /*
-    ** Calculate the Grammian matrix
+    ** Calculate the Grammian matrix and determine it's rank
     */
     for (UINT32 i = 0; i < noOfVecs; i++)
     {
@@ -105,10 +108,15 @@ int main(int argc, char* argv[])
 
     Matrix grammian(matArray,noOfVecs,noOfVecs);
 
-    grammian.rank();
+    gramDet = grammian.determinant();
+    printf("Grammian Determinant: %f\n",gramDet);
+    printf("Number of vectors: %d\n",noOfVecs);
 
-
-
+    /*
+    ** Peform the Gram-Schmidt decomposition if the determinant of the Grammian
+    ** matrix is non-zero
+    */
+    // ADD CODE HERE!!!!
 
     return 0;
 }

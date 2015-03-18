@@ -42,6 +42,7 @@
 
 /*------------------------------[Include Files]-------------------------------*/
 #include "StdTypes.hh"
+#include "Matrix.hh"
 
 
 /*-------------------------------[Begin Code]---------------------------------*/
@@ -105,13 +106,23 @@ class Vector
         /*
         ** Check the vector dimension to ensure it is greater than zero
         */
-        void checkSize(const UINT32& n);
+        void checkSize(const UINT32& n) const;
 
         /*
         ** Check the sizes of both vector objects before an operation takes
         ** place with an overloaded operator
         */
         void checkOperatorSize(const UINT32& n1, const UINT32& n2) const;
+
+        /*
+        ** Vector norm (magnitude)
+        */
+        double norm(void);
+
+        /*
+        ** Outer product of two vectors
+        */
+        Matrix outer(const Vector& rhs) const;
 
         /*
         ** Operators
@@ -121,6 +132,11 @@ class Vector
         double operator*(const Vector& rhs) const;
         double& operator[](const UINT32 i) const;
         double& operator[](const INT32 i) const;
+
+        /*
+        ** Print object information
+        */
+        void objPrint(void) const;
 
         /*
         ** Access methods
