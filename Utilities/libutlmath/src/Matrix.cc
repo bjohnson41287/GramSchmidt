@@ -301,14 +301,7 @@ void Matrix::QRdecomp(INT32 decompFlag, double& det, UINT32& matrixRank)
     /*
     ** Find the smaller matrix dimension
     */
-    if (mrows <= ncols)
-    {
-        n = mrows;
-    }
-    else
-    {
-        n = ncols;
-    }
+    n = MIN(mrows,ncols);
 
     /*
     ** If there is only one row or column in the matrix, then look for nonzero
