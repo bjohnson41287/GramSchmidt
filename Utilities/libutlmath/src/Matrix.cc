@@ -382,7 +382,7 @@ void Matrix::QRdecomp(INT32 decompFlag, double& det, UINT32& matrixRank)
         /*
         ** Calculate the vector norm and check if it is considered to be zero
         */
-        kVal = colVec.norm();
+        kVal = colVec.mag();
         if (fabs(kVal) < FLT_TOL)
         {
             if (mrows == ncols)

@@ -115,9 +115,9 @@ class Vector
         void checkOperatorSize(const UINT32& n1, const UINT32& n2) const;
 
         /*
-        ** Vector norm (magnitude)
+        ** Vector magnitude (norm)
         */
-        double norm(void);
+        double mag(void);
 
         /*
         ** Outer product of two vectors

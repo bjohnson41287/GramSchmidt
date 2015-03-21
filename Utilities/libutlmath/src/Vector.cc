@@ -172,11 +172,11 @@ void Vector::checkOperatorSize(const UINT32& n1, const UINT32& n2) const
 
 /**
 ********************************************************************************
-** @details Calculate the vector norm (magnitude)
-** @return  Norm, or magnitude, of the vector
+** @details Calculate the vector magnitude (norm)
+** @return  Magnitude, or norm, of the vector
 ********************************************************************************
 */
-double Vector::norm(void)
+double Vector::mag(void)
 {
     return(sqrt(*this*(*this)));
 }
