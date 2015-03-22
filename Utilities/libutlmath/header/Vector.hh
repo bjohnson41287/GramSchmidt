@@ -120,6 +120,11 @@ class Vector
         double mag(void);
 
         /*
+        ** Unit vector
+        */
+        Vector unit(void);
+
+        /*
         ** Outer product of two vectors
         */
         Matrix outer(const Vector& rhs) const;
@@ -128,10 +133,17 @@ class Vector
         ** Operators
         */
         Vector& operator+=(const Vector& rhs);
+        Vector& operator-=(const Vector& rhs);
+        Vector& operator*=(const double& rhs);
+        Vector& operator/=(const double& rhs);
         const Vector operator+(const Vector& rhs) const;
+        const Vector operator-(const Vector& rhs) const;
         double operator*(const Vector& rhs) const;
+        const Vector operator/(const double& rhs) const;
         double& operator[](const UINT32 i) const;
         double& operator[](const INT32 i) const;
+
+        friend Vector operator*(const double& lhs, const Vector& rhs);
 
         /*
         ** Print object information

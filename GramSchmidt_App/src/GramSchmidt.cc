@@ -62,15 +62,17 @@ int main(int argc, char* argv[])
     /*
     ** Define needed variables
     */
-    UINT32 noOfVecs = 3;
+    UINT32 noOfVecs = 4;
     UINT32 ndims = 4;
-    //UINT32 gramRank;
-    double gramDet;
+    UINT32 gramRank;
+    UINT32 vecsToGo;
+    UINT32* pOrthVecInd;
 
     double vecSet[noOfVecs][ndims];
     double matArray[noOfVecs*noOfVecs];
 
     Vector vec[noOfVecs];
+    Vector zeroVec(ndims);
 
     /*
     ** Instantiate each vector in the set and define their values
@@ -90,6 +92,11 @@ int main(int argc, char* argv[])
     vecSet[2][2] = 5;
     vecSet[2][3] = -7;
 
+    vecSet[3][0] = -3;
+    vecSet[3][1] = 6;
+    vecSet[3][2] = 1;
+    vecSet[3][3] = 9;
+
     for (UINT32 i = 0; i < noOfVecs; i++)
     {
         vec[i].setVector(vecSet[i],ndims);
@@ -107,16 +114,59 @@ int main(int argc, char* argv[])
     }
 
     Matrix grammian(matArray,noOfVecs,noOfVecs);
+    gramRank = grammian.rank();
+    vecsToGo = gramRank;
 
-    gramDet = grammian.determinant();
-    printf("Grammian Determinant: %f\n",gramDet);
-    printf("Number of vectors: %d\n",noOfVecs);
+    pOrthVecInd = new UINT32 [gramRank];
 
     /*
-    ** Peform the Gram-Schmidt decomposition if the determinant of the Grammian
-    ** matrix is non-zero
+    ** Perform the Modified Gram-Schmidt algorithm
     */
-    // ADD CODE HERE!!!!
+    if (gramRank > 0)
+    {
+        for (UINT32 i = 0; i < noOfVecs; i++)
+        {
+            /*
+            ** Subtract the current vector component from every vector still
+            ** left and calculate the next unit vector
+            */
+            if (i > 0)
+            {
+                for (UINT32 j = i; j < noOfVecs; j++)
+                {
+                    vec[j] = vec[j] - (vec[i-1]*vec[j])*vec[i-1];
+                }
+            }
+
+            if (vec[i].mag() >= FLOAT_TOL || vecsToGo == noOfVecs-i)
+            {
+                vec[i] = vec[i].unit();
+                pOrthVecInd[gramRank-vecsToGo] = i;
+                vecsToGo--;
+            }
+            else
+            {
+                vec[i] = zeroVec;
+            }
+
+            /*
+            ** If all of the orthogonal vectors have been found, end the loop
+            */
+            if (0 == vecsToGo)
+            {
+                break;
+            }
+        }
+    }
+
+    /*
+    ** Print the orthogonal vectors
+    */
+    printf("Number of orthogonal vectors: %d\n",gramRank);
+    for (UINT32 i = 0; i < gramRank; i++)
+    {
+        vec[pOrthVecInd[i]].objPrint();
+    }
 
     return 0;
 }

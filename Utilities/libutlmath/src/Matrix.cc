@@ -312,7 +312,7 @@ void Matrix::QRdecomp(INT32 decompFlag, double& det, UINT32& matrixRank)
     {
         for (UINT32 i = 0; i < n; i++)
         {
-            if (fabs(pMatrix[i]) >= FLT_TOL)
+            if (fabs(pMatrix[i]) >= FLOAT_TOL)
             {
                 matRank++;
                 break;
@@ -376,7 +376,7 @@ void Matrix::QRdecomp(INT32 decompFlag, double& det, UINT32& matrixRank)
         ** Calculate the vector norm and check if it is considered to be zero
         */
         kVal = colVec.mag();
-        if (fabs(kVal) < FLT_TOL)
+        if (fabs(kVal) < FLOAT_TOL)
         {
             if (mrows == ncols)
             {
@@ -460,7 +460,7 @@ void Matrix::QRdecomp(INT32 decompFlag, double& det, UINT32& matrixRank)
     }
 
     kVal = sqrt(kVal);
-    if (fabs(kVal) >= FLT_TOL)
+    if (fabs(kVal) >= FLOAT_TOL)
     {
         if (mrows == ncols)
         {
@@ -523,7 +523,7 @@ Matrix& Matrix::operator*=(const double& rhs)
 ** @return  result  Matrix object with subtraction of elements
 ********************************************************************************
 */
-Matrix Matrix::operator-(const Matrix& rhs) const
+const Matrix Matrix::operator-(const Matrix& rhs) const
 {
     Matrix result(*this);
     result -= rhs;
@@ -538,29 +538,26 @@ Matrix Matrix::operator-(const Matrix& rhs) const
 ** @return  result  Matrix object C = A*B
 ********************************************************************************
 */
-Matrix Matrix::operator*(const Matrix& rhs)
+const Matrix Matrix::operator*(const Matrix& rhs)
 {
     checkConformable(ncols,rhs.mrows);
-    double* pMultMat;
-
-    pMultMat = new double [mrows*rhs.ncols];
+    double multMat[mrows*rhs.ncols];
 
     for (UINT32 i = 0; i < mrows; i++)
     {
         for (UINT32 j = 0; j < rhs.ncols; j++)
         {
-            pMultMat[i*rhs.ncols + j] = 0;
+            multMat[i*rhs.ncols + j] = 0;
 
             for (UINT32 k = 0; k < ncols; k++)
             {
-                pMultMat[i*rhs.ncols + j] += pMatrix[i*ncols + k]*
-                                             rhs.pMatrix[k*rhs.ncols + j];
+                multMat[i*rhs.ncols + j] += pMatrix[i*ncols + k]*
+                                            rhs.pMatrix[k*rhs.ncols + j];
             }
         }
     }
 
-    Matrix result(pMultMat,mrows,rhs.ncols);
-    delete[] pMultMat;
+    Matrix result(multMat,mrows,rhs.ncols);
 
     return(result);
 }

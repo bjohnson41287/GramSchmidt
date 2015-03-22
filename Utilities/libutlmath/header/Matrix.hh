@@ -204,8 +204,8 @@ class Matrix
         */
         Matrix& operator-=(const Matrix& rhs);
         Matrix& operator*=(const double& rhs);
-        Matrix operator-(const Matrix& rhs) const;
-        Matrix operator*(const Matrix& rhs);
+        const Matrix operator-(const Matrix& rhs) const;
+        const Matrix operator*(const Matrix& rhs);
         MatrixRow operator[](const UINT32& rowInd);
 
         friend Matrix operator*(const double& lhs, const Matrix& rhs);

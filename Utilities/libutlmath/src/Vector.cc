@@ -183,6 +183,28 @@ double Vector::mag(void)
 
 /**
 ********************************************************************************
+** @details Return the unit vector
+** @return  unitVec
+********************************************************************************
+*/
+Vector Vector::unit(void)
+{
+    double vecMag;
+
+    vecMag = mag();
+    if (vecMag < FLOAT_TOL)
+    {
+        printf("Error - %s\n"
+               "        The zero vector has no unit vector.\n",
+               __PRETTY_FUNCTION__);
+        exit(EXIT_FAILURE);
+    }
+
+    return(Vector(*this/mag()));
+}
+
+/**
+********************************************************************************
 ** @details Calculate the outer product of two vectors
 ** @param   rhs Vector object
 ** @return  Outer product matrix object
@@ -208,6 +230,7 @@ Matrix Vector::outer(const Vector& rhs) const
 
     return(Matrix(pMatrix,matRows,matCols));
 }
+
 /**
 ********************************************************************************
 ** @details Vector addition compound assignment
@@ -221,6 +244,62 @@ Vector& Vector::operator+=(const Vector& rhs)
     for (UINT32 i = 0; i < ndims; i++)
     {
         pVec[i] += rhs.pVec[i];
+    }
+
+    return(*this);
+}
+
+/**
+********************************************************************************
+** @details Vector subtraction compound assignment
+** @param   rhs     Vector object
+** @return  *this   Calling object with subtracted values
+********************************************************************************
+*/
+Vector& Vector::operator-=(const Vector& rhs)
+{
+    checkOperatorSize(ndims,rhs.ndims);
+    for (UINT32 i = 0; i < ndims; i++)
+    {
+        pVec[i] -= rhs.pVec[i];
+    }
+
+    return(*this);
+}
+
+/**
+********************************************************************************
+** @details Vector multiplication compound assignment
+** @param   rhs     double data type
+** @return  *this   Calling object with multiplied values
+********************************************************************************
+*/
+Vector& Vector::operator*=(const double& rhs)
+{
+    for (UINT32 i = 0; i < ndims; i++)
+    {
+        pVec[i] *= rhs;
+    }
+
+    return(*this);
+}
+
+/**
+********************************************************************************
+** @details Vector divided by a double compound assignment
+** @param   rhs     double data type
+** @return  *this   Calling object with divided values
+********************************************************************************
+*/
+Vector& Vector::operator/=(const double& rhs)
+{
+    /*
+    ** There is a possibility of dividing by zero, so the user should be aware
+    ** of this when dividing a vector object by a double
+    */
+    for (UINT32 i = 0; i < ndims; i++)
+    {
+        pVec[i] /= rhs;
     }
 
     return(*this);
@@ -243,8 +322,23 @@ const Vector Vector::operator+(const Vector& rhs) const
 
 /**
 ********************************************************************************
+** @details Vector subtraction with another Vector object
+** @param   rhs     Vector object
+** @return  result  Vector object with subtraction of elements
+********************************************************************************
+*/
+const Vector Vector::operator-(const Vector& rhs) const
+{
+    Vector result(*this);
+    result -= rhs;
+
+    return(result);
+}
+
+/**
+********************************************************************************
 ** @details Vector inner(dot) product
-** @param   rhs Conformable Vector object
+** @param   rhs     Conformable Vector object
 ** @return  dotProd Vector dot product
 ********************************************************************************
 */
@@ -259,6 +353,37 @@ double Vector::operator*(const Vector& rhs) const
     }
 
     return(dotProd);
+}
+
+/**
+********************************************************************************
+** @details Double multiplied by a vector
+** @param   lhs     double data type
+** @param   rhs     Vector object
+** @return  result  Vector object with every element multiplied by lhs
+********************************************************************************
+*/
+Vector operator*(const double& lhs, const Vector& rhs)
+{
+    Vector result(rhs);
+    result *= lhs;
+
+    return(result);
+}
+
+/**
+********************************************************************************
+** @details Vector divided by a double
+** @param   rhs     double data type
+** @return  result  Vector object with elements divided by a double
+********************************************************************************
+*/
+const Vector Vector::operator/(const double& rhs) const
+{
+    Vector result(*this);
+    result /= rhs;
+
+    return(result);
 }
 
 /**
