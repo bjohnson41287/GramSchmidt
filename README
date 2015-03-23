@@ -1,11 +1,11 @@
 Maintainer: Ben Johnson
 GitHub Repository: bjohnson41287/GramSchmidt
 
-The GramSchmidt program is a simple C++ program that uses the Gram Schmidt
-method to find orthogonal basis vectors from other vectors that span an
-n-dimensional space.
+The GramSchmidt program is a simple C++ program that uses the Modified
+Gram-Schmidt algorithm to find orthonormal basis vectors from a set of n vectors
+that may or may not span the n-dimensional vector space.
 
-Since this is the first program I have written that uses the git version control
-system, it is primarily for the purpose of becoming familiar with git and to
+Since this is the first program I have written that uses the Git version control
+system, it is primarily for the purpose of becoming familiar with Git and to
 learn how to incorporate libraries, Makefiles, and Doxygen into a C++ program
 directory structure.
