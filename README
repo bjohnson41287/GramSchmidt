@@ -9,3 +9,26 @@ Since this is the first program I have written that uses the Git version control
 system, it is primarily for the purpose of becoming familiar with Git and to
 learn how to incorporate libraries, Makefiles, and Doxygen into a C++ program
 directory structure.
+
+To clone, compile, and run the program, the following commands need to be run:
+
+1. Clone the GramSchmidt repository
+    > git clone git@github.com:bjohnson41287/GramSchmidt
+
+2. Change directories to GramSchmidt and configure the environment
+    > cd GramSchmidt
+    > source Build/setenv.sh
+
+2. Configure and build the GramSchmidt program
+    > Build/GramSchmidt.sh build
+
+3. Run the execuatable
+    > exec/GramSchmidt
+
+To generate the Doxygen HTML documentation, execute the following command in
+the GramSchmidt directory:
+    > doxygen Doxygen/Doxyfile
+
+The HTML documentation can be viewed in any web browser by typing in the full
+path to the GramSchmidt/doc/html directory in the address bar and opening the
+index.html file.
