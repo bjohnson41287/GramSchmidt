@@ -114,7 +114,7 @@ Vector::Vector(const Vector& vec)
 /**
 ********************************************************************************
 ** @details Vector move constructor
-** @param   vec Vector object rvalue reference
+** @param   vec Vector object lvalue reference
 ********************************************************************************
 */
 Vector::Vector(Vector&& vec)
@@ -183,8 +183,8 @@ double Vector::mag(void)
 
 /**
 ********************************************************************************
-** @details Return the unit vector
-** @return  unitVec
+** @details Return the unit vector corresponding to the calling object
+** @return  Unit vector corresponding to the calling object
 ********************************************************************************
 */
 Vector Vector::unit(void)
@@ -234,8 +234,8 @@ Matrix Vector::outer(const Vector& rhs) const
 /**
 ********************************************************************************
 ** @details Vector addition compound assignment
-** @param   rhs     Vector object
-** @return  *this   Calling object with added values
+** @param   rhs Vector object
+** @return  Calling object with added values
 ********************************************************************************
 */
 Vector& Vector::operator+=(const Vector& rhs)
@@ -252,8 +252,8 @@ Vector& Vector::operator+=(const Vector& rhs)
 /**
 ********************************************************************************
 ** @details Vector subtraction compound assignment
-** @param   rhs     Vector object
-** @return  *this   Calling object with subtracted values
+** @param   rhs Vector object
+** @return  Calling object with subtracted values
 ********************************************************************************
 */
 Vector& Vector::operator-=(const Vector& rhs)
@@ -270,8 +270,8 @@ Vector& Vector::operator-=(const Vector& rhs)
 /**
 ********************************************************************************
 ** @details Vector multiplication compound assignment
-** @param   rhs     double data type
-** @return  *this   Calling object with multiplied values
+** @param   rhs double data type
+** @return  Calling object with multiplied values
 ********************************************************************************
 */
 Vector& Vector::operator*=(const double& rhs)
@@ -287,8 +287,8 @@ Vector& Vector::operator*=(const double& rhs)
 /**
 ********************************************************************************
 ** @details Vector divided by a double compound assignment
-** @param   rhs     double data type
-** @return  *this   Calling object with divided values
+** @param   rhs double data type
+** @return  Calling object with elements divided by a double
 ********************************************************************************
 */
 Vector& Vector::operator/=(const double& rhs)
@@ -308,8 +308,8 @@ Vector& Vector::operator/=(const double& rhs)
 /**
 ********************************************************************************
 ** @details Vector addition with another Vector object
-** @param   rhs     Vector object
-** @return  result  Vector object with addition of elements
+** @param   rhs Vector object
+** @return  New Vector object with addition of elements
 ********************************************************************************
 */
 const Vector Vector::operator+(const Vector& rhs) const
@@ -323,8 +323,8 @@ const Vector Vector::operator+(const Vector& rhs) const
 /**
 ********************************************************************************
 ** @details Vector subtraction with another Vector object
-** @param   rhs     Vector object
-** @return  result  Vector object with subtraction of elements
+** @param   rhs Vector object
+** @return  New Vector object with subtraction of elements
 ********************************************************************************
 */
 const Vector Vector::operator-(const Vector& rhs) const
@@ -337,9 +337,9 @@ const Vector Vector::operator-(const Vector& rhs) const
 
 /**
 ********************************************************************************
-** @details Vector inner(dot) product
-** @param   rhs     Conformable Vector object
-** @return  dotProd Vector dot product
+** @details Vector inner (dot) product
+** @param   rhs Conformable Vector object
+** @return  Vector dot product
 ********************************************************************************
 */
 double Vector::operator*(const Vector& rhs) const
@@ -358,9 +358,9 @@ double Vector::operator*(const Vector& rhs) const
 /**
 ********************************************************************************
 ** @details Double multiplied by a vector
-** @param   lhs     double data type
-** @param   rhs     Vector object
-** @return  result  Vector object with every element multiplied by lhs
+** @param   lhs double data type
+** @param   rhs Vector object
+** @return  New Vector object with every element multiplied by lhs
 ********************************************************************************
 */
 Vector operator*(const double& lhs, const Vector& rhs)
@@ -374,8 +374,8 @@ Vector operator*(const double& lhs, const Vector& rhs)
 /**
 ********************************************************************************
 ** @details Vector divided by a double
-** @param   rhs     double data type
-** @return  result  Vector object with elements divided by a double
+** @param   rhs double data type
+** @return  New Vector object with elements divided by a double
 ********************************************************************************
 */
 const Vector Vector::operator/(const double& rhs) const
@@ -389,11 +389,11 @@ const Vector Vector::operator/(const double& rhs) const
 /**
 ********************************************************************************
 ** @details Vector element operator for UINT32 index
-** @param   i       UINT32 vector index
-** @return  pVec[i] Vector element
+** @param   i   UINT32 vector index
+** @return  Vector element
 ********************************************************************************
 */
-double& Vector::operator[](const UINT32 i) const
+double& Vector::operator[](const UINT32& i) const
 {
     if (i > ndims-1)
     {
@@ -410,11 +410,11 @@ double& Vector::operator[](const UINT32 i) const
 /**
 ********************************************************************************
 ** @details Vector element operator for INT32 index
-** @param   i       INT32 vector index
-** @return  pVec[i] Vector element
+** @param   i   INT32 vector index
+** @return  Vector element
 ********************************************************************************
 */
-double& Vector::operator[](const INT32 i) const
+double& Vector::operator[](const INT32& i) const
 {
     if (i < 0)
     {
@@ -438,8 +438,8 @@ double& Vector::operator[](const INT32 i) const
 /**
 ********************************************************************************
 ** @details Vector copy assignment operator
-** @param   rhs     Vector lvalue reference object
-** @return  *this   Calling object with rhs values
+** @param   rhs Vector lvalue reference object
+** @return  Calling object with rhs values
 ********************************************************************************
 */
 Vector& Vector::operator=(const Vector& rhs)
@@ -457,8 +457,8 @@ Vector& Vector::operator=(const Vector& rhs)
 /**
 ********************************************************************************
 ** @details Vector move assignment operator
-** @param   rhs     Vector rvalue reference object
-** @return  *this   Calling object with temporary's values
+** @param   rhs Vector rvalue reference object
+** @return  Calling object with temporary's values
 ********************************************************************************
 */
 Vector& Vector::operator=(Vector&& rhs)
@@ -540,7 +540,7 @@ void Vector::setVector(const double* vals, const UINT32& n)
 /**
 ********************************************************************************
 ** @details Return the vector dimension
-** @return  ndims   Vector dimension
+** @return  Vector dimension
 ********************************************************************************
 */
 const UINT32& Vector::getSize(void) const

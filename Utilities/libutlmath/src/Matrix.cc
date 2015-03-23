@@ -73,9 +73,9 @@ Matrix::Matrix(const UINT32& m, const UINT32& n)
 /**
 ********************************************************************************
 ** @details Matrix class constructor
-** @param   matArray    Array of values to assign to the Matrix object
-** @param   m           Number of rows
-** @param   n           Number of columns
+** @param   data    Array of values to assign to the Matrix object
+** @param   m       Number of rows
+** @param   n       Number of columns
 ********************************************************************************
 */
 Matrix::Matrix(const double* data, const UINT32& m, const UINT32& n)
@@ -113,7 +113,7 @@ Matrix::Matrix(const Matrix& rhs)
 /**
 ********************************************************************************
 ** @details Matrix move constructor
-** @param   rhs Matrix object rvalue reference
+** @param   rhs Matrix object lvalue reference
 ********************************************************************************
 */
 Matrix::Matrix(Matrix&& rhs)
@@ -226,7 +226,9 @@ void Matrix::checkColInd(const UINT32& n)
 
 /**
 ********************************************************************************
-** @details Calculate the rank of the matrix from the QR decomposition
+** @details Calculate the rank of the matrix from the QR decomposition with a
+**          Householder Transformation
+** @return  Rank of the matrix
 ********************************************************************************
 */
 UINT32 Matrix::rank(void)
@@ -247,6 +249,7 @@ UINT32 Matrix::rank(void)
 ********************************************************************************
 ** @details Calculate the determinant of a square matrix using the QR
 **          decomposition with a Householder Transformation
+** @return  Determinant of a square matrix
 ********************************************************************************
 */
 double Matrix::determinant(void)
@@ -277,7 +280,7 @@ double Matrix::determinant(void)
 **          to return the determinant of a square matrix or the rank of any
 **          matrix
 ** @param   decompFlag  Flag indicating if the determinant or rank is returned
-** @param   det         Reference for the determinant if a square matrix
+** @param   det         Reference for the determinant, if a square matrix
 ** @param   matrixRank  Reference for the rank
 ********************************************************************************
 */
@@ -484,8 +487,8 @@ void Matrix::QRdecomp(INT32 decompFlag, double& det, UINT32& matrixRank)
 /**
 ********************************************************************************
 ** @details Matrix subtraction compound assignment
-** @param   rhs     Matrix object
-** @return  *this   Calling object with subtracted values
+** @param   rhs Matrix object
+** @return  Calling object with subtracted values
 ********************************************************************************
 */
 Matrix& Matrix::operator-=(const Matrix& rhs)
@@ -502,8 +505,8 @@ Matrix& Matrix::operator-=(const Matrix& rhs)
 /**
 ********************************************************************************
 ** @details Matrix multiplied by a double compound assignment
-** @param   rhs     double data type
-** @return  *this   Calling object with every element multiplied by rhs
+** @param   rhs double data type
+** @return  Calling object with every element multiplied by rhs
 ********************************************************************************
 */
 Matrix& Matrix::operator*=(const double& rhs)
@@ -519,8 +522,8 @@ Matrix& Matrix::operator*=(const double& rhs)
 /**
 ********************************************************************************
 ** @details Matrix subtraction with another Matrix object
-** @param   rhs     Matrix object
-** @return  result  Matrix object with subtraction of elements
+** @param   rhs Matrix object
+** @return  New Matrix object with subtraction of elements
 ********************************************************************************
 */
 const Matrix Matrix::operator-(const Matrix& rhs) const
@@ -534,8 +537,8 @@ const Matrix Matrix::operator-(const Matrix& rhs) const
 /**
 ********************************************************************************
 ** @details Matrix A multiplied by a matrix B
-** @param   rhs     Matrix object B
-** @return  result  Matrix object C = A*B
+** @param   rhs Matrix object B
+** @return  New Matrix object C = A*B
 ********************************************************************************
 */
 const Matrix Matrix::operator*(const Matrix& rhs)
@@ -565,9 +568,9 @@ const Matrix Matrix::operator*(const Matrix& rhs)
 /**
 ********************************************************************************
 ** @details Double multiplied by a matrix
-** @param   lhs     double data type
-** @param   rhs     Matrix object
-** @return  result  Matrix object with every element multiplied by lhs
+** @param   lhs double data type
+** @param   rhs Matrix object
+** @return  New Matrix object with every element multiplied by lhs
 ********************************************************************************
 */
 Matrix operator*(const double& lhs, const Matrix& rhs)
@@ -581,9 +584,9 @@ Matrix operator*(const double& lhs, const Matrix& rhs)
 /**
 ********************************************************************************
 ** @details Matrix multiplied by a double
-** @param   lhs     Matrix object
-** @param   rhs     double data type
-** @return  result  Matrix object with every element multiplied by rhs
+** @param   lhs Matrix object
+** @param   rhs double data type
+** @return  Matrix object with every element multiplied by rhs
 ********************************************************************************
 */
 Matrix operator*(const Matrix& lhs, const double& rhs)
@@ -594,7 +597,8 @@ Matrix operator*(const Matrix& lhs, const double& rhs)
 /**
 ********************************************************************************
 ** @details Access the specified Matrix row
-** @param   index   Matrix row index
+** @param   rowInd  Matrix row index
+** @return  MatrixRow object
 ********************************************************************************
 */
 MatrixRow Matrix::operator[](const UINT32& rowInd)
@@ -607,8 +611,8 @@ MatrixRow Matrix::operator[](const UINT32& rowInd)
 /**
 ********************************************************************************
 ** @details Matrix copy assignment operator
-** @param   rhs     Matrix lvalue reference object
-** @return  *this   Calling object with rhs values
+** @param   rhs Matrix lvalue reference object
+** @return  Calling object with rhs values
 ********************************************************************************
 */
 Matrix& Matrix::operator=(const Matrix& rhs)
@@ -626,8 +630,8 @@ Matrix& Matrix::operator=(const Matrix& rhs)
 /**
 ********************************************************************************
 ** @details Matrix move assignment operator
-** @param   rhs     Matrix rvalue reference object
-** @return  *this   Calling object with temporary's values
+** @param   rhs Matrix rvalue reference object
+** @return  Calling object with temporary's values
 ********************************************************************************
 */
 Matrix& Matrix::operator=(Matrix&& rhs)
@@ -686,7 +690,6 @@ void Matrix::objPrint(void) const
 ** @param   endRow      Last row indes of the matrix to extract (0 indexed)
 ** @param   endCol      Last column index of the matrix to extract (0 indexed)
 ** @return  Extracted sub matrix
-** 
 ********************************************************************************
 */
 Matrix Matrix::getSubMatrix(const UINT32& startRow, const UINT32& startCol,
@@ -769,7 +772,7 @@ Matrix Matrix::getSubMatrix(const UINT32& startRow, const UINT32& startCol,
 /**
 ********************************************************************************
 ** @details Return the number of rows in the matrix
-** @return  mrows   Number of rows in the matrix
+** @return  Number of rows in the matrix
 ********************************************************************************
 */
 UINT32 Matrix::getRows(void) const
@@ -780,7 +783,7 @@ UINT32 Matrix::getRows(void) const
 /**
 ********************************************************************************
 ** @details Return the number of columns in the matrix
-** @return  ncols   Number of columns in the matrix
+** @return  Number of columns in the matrix
 ********************************************************************************
 */
 UINT32 Matrix::getCols(void) const
@@ -788,46 +791,12 @@ UINT32 Matrix::getCols(void) const
     return(ncols);
 }
 
-/**
-********************************************************************************
-** @details If the matrix is square, set it to the identity matrix
-********************************************************************************
-*/
-void Matrix::setIdentity(void)
-{
-    /*
-    ** Ensure the matrix is square
-    */
-    if (mrows != ncols)
-    {
-        printf("Error - %s\n"
-               "        Attempting to set non-square matrix to the identity\n"
-               "        matrix",__PRETTY_FUNCTION__);
-        exit(EXIT_FAILURE);
-    }
-
-    for (UINT32 i = 0; i < mrows; i++)
-    {
-        for (UINT32 j = 0; j < ncols; j++)
-        {
-            if (j == i)
-            {
-                pMatrix[i*ncols + j] = 1;
-            }
-            else
-            {
-                pMatrix[i*ncols + j] = 0;
-            }
-
-        }
-    }
-}
-
 /*----------------------------[MatrixRow Methods]-----------------------------*/
 /**
 ********************************************************************************
 ** @details MatrixRow class constructor
-** @param   matRow  Pointer to data in a Matrix row
+** @param   rowData Pointer to data in a Matrix row
+** @param   n       Number of columns in the Matrix row
 ********************************************************************************
 */
 MatrixRow::MatrixRow(double* rowData,const UINT32& n)
@@ -855,9 +824,9 @@ void MatrixRow::checkInd(const UINT32& ind)
 
 /**
 ********************************************************************************
-** @details Verify the number of rows and columns is greater than zero
-** @param   m   Number of rows
-** @param   n   Number of columns
+** @details Access the specified MatrixRow element
+** @param   index   MatrixRow index
+** @return  Specified MatrixRow element
 ********************************************************************************
 */
 double& MatrixRow::operator[](const UINT32& index)

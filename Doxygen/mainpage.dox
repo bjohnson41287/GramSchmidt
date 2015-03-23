@@ -1,7 +1,7 @@
 /**
 ** @mainpage Gram-Schmidt
 **
-** This program uses the Gram-Schmidt process to solve for an orthonormal set of
-** n basis vectors, given a non-orthogonal set of n vectors that span the
-** n-dimensional space.
+** This program uses the Modified Gram-Schmidt algorithm to solve for an
+** orthonormal set of basis vectors, given a set of n vectors that may or may
+** not span the n-dimensional vector space.
 */
