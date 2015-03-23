@@ -10,7 +10,7 @@
 **
 ** @date    $Format:%cD$
 **
-** @copyright Copyright 2014 by Ben Johnson\n
+** @copyright Copyright 2015 by Ben Johnson\n
 **            You can freely redistribute and/or modify the contents of this
 **            file under the terms of the GNU General Public License version 3,
 **            or any later versions.
@@ -21,7 +21,7 @@
 ********************************************************************************
 **  Vector.hh
 **
-**  (C) Copyright 2014 by Ben Johnson
+**  (C) Copyright 2015 by Ben Johnson
 **
 **  This is free software: you can redistribute it and/or modify it under the
 **  terms of the GNU General Public License as published by the Free Software
@@ -42,6 +42,7 @@
 
 /*------------------------------[Include Files]-------------------------------*/
 #include "StdTypes.hh"
+#include "Matrix.hh"
 
 
 /*-------------------------------[Begin Code]---------------------------------*/
@@ -56,55 +57,112 @@
 class Vector
 {
     private:
-        unsigned int ndims;   /* Number of dimensions (elements) in the vector */
+        UINT32 ndims;   /* Number of dimensions (elements) in the vector */
 
-        double* pVec;         /* Pointer to the vector elements */
+        double* pVec;   /* Pointer to the vector elements */
 
     public:
 
-        /**
-        ** @brief Default constructor (disabled)
+        /*
+        ** Default constructor
         */
-        Vector() = delete;
+        Vector();
 
         /*
         ** Constructor (one parameter)
         */
-        Vector(unsigned int n);
+        Vector(const UINT32& n);
+
+        /*
+        ** Constructor (two parameters)
+        */
+        Vector(const double* vals, const UINT32& n);
+
+        /*
+        ** Default copy constructor
+        */
+        Vector(const Vector& vec);
+
+        /*
+        ** Default copy assignment
+        */
+        Vector& operator=(const Vector& rhs);
+
+        /*
+        ** Default move constructor
+        */
+        Vector(Vector&& vec);
+
+        /*
+        ** Default move assignment
+        */
+        Vector& operator=(Vector&& rhs);
 
         /**
-        ** @brief Default copy constructor (disabled)
+        ** @brief Default destructor
         */
-        Vector(const Vector&) = delete;
+        ~Vector() = default;
 
-        /**
-        ** @brief Default copy assignment (disabled)
+        /*
+        ** Check the vector dimension to ensure it is greater than zero
         */
-        Vector& operator=(const Vector&) = delete;
+        void checkSize(const UINT32& n) const;
 
-        /**
-        ** @brief TODO: MOVE DOCUMENTATION Default move constructor
+        /*
+        ** Check the sizes of both vector objects before an operation takes
+        ** place with an overloaded operator
         */
-        Vector(Vector&&) = default;
+        void checkOperatorSize(const UINT32& n1, const UINT32& n2) const;
 
-        /**
-        ** @brief TODO: MOVE DOCUMENTATION Default move assignment
+        /*
+        ** Vector magnitude (norm)
         */
-        Vector& operator=(Vector&&) = default;
+        double mag(void);
 
-        /**
-        ** @brief TODO: MOVE DOCUMENTATION Default destructor (disabled)
+        /*
+        ** Unit vector
         */
-        ~Vector();
+        Vector unit(void);
 
+        /*
+        ** Outer product of two vectors
+        */
+        Matrix outer(const Vector& rhs) const;
 
+        /*
+        ** Operators
+        */
+        Vector& operator+=(const Vector& rhs);
+        Vector& operator-=(const Vector& rhs);
+        Vector& operator*=(const double& rhs);
+        Vector& operator/=(const double& rhs);
+        const Vector operator+(const Vector& rhs) const;
+        const Vector operator-(const Vector& rhs) const;
+        double operator*(const Vector& rhs) const;
+        const Vector operator/(const double& rhs) const;
+        double& operator[](const UINT32 i) const;
+        double& operator[](const INT32 i) const;
+
+        friend Vector operator*(const double& lhs, const Vector& rhs);
+
+        /*
+        ** Print object information
+        */
+        void objPrint(void) const;
+
+        /*
+        ** Access methods
+        */
+
+        /*
+        ** Set the size and elements of the vector from a column array
+        */
+        void setVector(const double* vals, const UINT32& n);
+
+        /*
+        ** Get the vector dimension
+        */
+        const UINT32& getSize(void) const;
 };
-
-
-
-
-
-
-
 
 #endif

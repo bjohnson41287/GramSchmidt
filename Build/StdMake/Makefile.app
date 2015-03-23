@@ -28,15 +28,9 @@ OBJS := $(addprefix $(LOCAL_OBJ_DIR)/,$(call objNames,$(CCSOURCE)))
 #
 .PHONY: all configure clobber clean distclean
 
-all: $(DEST_EXEC_PATH)
-ifneq ($(OBJS),)
-	@if [ ! -d $(LOCAL_OBJ_DIR) ]; then \
-		$(MKDIR) $(LOCAL_OBJ_DIR); \
-	fi
-	@$(MAKE) $(DEST_EXEC_PATH)/$(APP_NAME)
-endif
+all: local_all
 
-configure: $(DEST_HEADER_PATH)
+configure: local_configure
 ifneq ($(HEADERS),)
 	@for file in $(HEADERS); do \
 		$(LN) $(LOCAL_HEADER_DIR)/$$file $(DEST_HEADER_PATH)/$$file; \
