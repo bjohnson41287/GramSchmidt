@@ -51,8 +51,8 @@
 ** @class   MatrixRow
 ** @brief   Storage class for Matrix rows
 ** @details To effectively access the Matrix elements, a storage class is needed
-**          to store each row of a Matrix object. This allows direct access to
-**          the columns within each row.
+**          to store a row of a Matrix object. This allows direct access to the
+**          columns within a particular row.
 ********************************************************************************
 */
 class MatrixRow
@@ -95,8 +95,7 @@ class MatrixRow
 ** @class   Matrix
 ** @brief   Incorporate m x n matrix math
 ** @details A class to implement general m x n matrices and perform various math
-**          operations with conformable objects such as a Matrix or Vector
-**          object.
+**          operations with other Matrix or Vector objects.
 ********************************************************************************
 */
 class Matrix
@@ -235,13 +234,6 @@ class Matrix
         ** Return the number of columns in the matrix
         */
         UINT32 getCols(void) const;
-
-        /*
-        ** Set the matrix to an identity matrix
-        */
-        void setIdentity(void);
-
-
 
 };
 

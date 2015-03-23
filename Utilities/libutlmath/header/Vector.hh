@@ -140,8 +140,8 @@ class Vector
         const Vector operator-(const Vector& rhs) const;
         double operator*(const Vector& rhs) const;
         const Vector operator/(const double& rhs) const;
-        double& operator[](const UINT32 i) const;
-        double& operator[](const INT32 i) const;
+        double& operator[](const UINT32& i) const;
+        double& operator[](const INT32& i) const;
 
         friend Vector operator*(const double& lhs, const Vector& rhs);
 

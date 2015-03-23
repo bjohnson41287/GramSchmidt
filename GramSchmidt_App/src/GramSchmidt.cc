@@ -2,7 +2,7 @@
 ********************************************************************************
 ** @file    GramSchmidt.cc
 **
-** @brief   Starting point for the Gram-Schmidt algorithm
+** @brief   Starting point for the Modified Gram-Schmidt algorithm
 **
 ** @details The Gram-Schmidt process generates an orthonormal set of n basis
 **          vectors, given a non-orthogonal set of n vectors that span the

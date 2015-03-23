@@ -23,7 +23,7 @@
 ********************************************************************************
 **  Macros.hh
 **
-**  (C) Copyright 2014 by Ben Johnson
+**  (C) Copyright 2015 by Ben Johnson
 **
 **  This is free software: you can redistribute it and/or modify it under the
 **  terms of the GNU General Public License as published by the Free Software
@@ -61,7 +61,7 @@
 /**
 ********************************************************************************
 ** @def   FLOAT_TOL
-** @brief Smallest precision for a floating point variable.
+** @brief Smallest precision for a single floating point value.
 ********************************************************************************
 */
 #define FLOAT_TOL 1E-6
